@@ -1,0 +1,43 @@
+{
+  "name": "pipsqueak",
+  "version": "1.0.0",
+  "description": "An interval based task runner",
+  "main": "index.js",
+  "scripts": {
+    "istanbul": "istanbul cover --report html --report lcov _mocha",
+    "codeclimate": "npm run istanbul && source .codeclimate && codeclimate-test-reporter < coverage/lcov.info",
+    "lint": "eslint .",
+    "precommit": "npm run lint && npm run test && npm run examples",
+    "prepush": "npm run lint && npm run codeclimate",
+    "test": "mocha"
+  },
+  "keywords": [
+    "task",
+    "runner"
+  ],
+  "author": "Stephen Cresswell",
+  "license": "ISC",
+  "devDependencies": {
+    "codeclimate-test-reporter": "^0.5.0",
+    "eslint": "^4.1.1",
+    "eslint-config-imperative": "^2.0.1",
+    "eslint-plugin-imperative": "^2.0.0",
+    "husky": "^0.14.3",
+    "istanbul": "^0.4.5",
+    "mocha": "^5.0.0"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "parse-duration": "^0.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cressie176/pipsqueak.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cressie176/pipsqueak/issues"
+  },
+  "homepage": "https://cressie176.github.io/pipsqueak/"
+}
