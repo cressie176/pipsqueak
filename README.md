@@ -101,4 +101,4 @@ Emitted whenever the task errors.
 | timestamp | Uniquely identifies the run. Useful if you want to calculate task duration |
 | error     | The error object thrown, rejected or passed to the callback |
 
-<img alt="Pipsqueak" src="//upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/220px-Pipsqueak_Go_Go_Hamster.png" width="220" height="188" class="thumbimage" srcset="//upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/330px-Pipsqueak_Go_Go_Hamster.png 1.5x, //upload.wikimedia.org/wikipedia/en/8/87/Pipsqueak_Go_Go_Hamster.png 2x" data-file-width="341" data-file-height="292">
+<img alt="Pipsqueak" src="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/220px-Pipsqueak_Go_Go_Hamster.png" width="220" height="188" class="thumbimage" srcset="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/330px-Pipsqueak_Go_Go_Hamster.png 1.5x, https://upload.wikimedia.org/wikipedia/en/8/87/Pipsqueak_Go_Go_Hamster.png 2x" data-file-width="341" data-file-height="292">
