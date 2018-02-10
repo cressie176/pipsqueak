@@ -14,7 +14,8 @@ Pipsqueak is an interval based task runner, with support for promises, callbacks
 
 <img alt="Pipsqueak" src="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/220px-Pipsqueak_Go_Go_Hamster.png" width="220" height="188" class="thumbimage" srcset="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/330px-Pipsqueak_Go_Go_Hamster.png 1.5x, https://upload.wikimedia.org/wikipedia/en/8/87/Pipsqueak_Go_Go_Hamster.png 2x" data-file-width="341" data-file-height="292">
 
-## TL;DR (Promise API)
+## TL;DR
+###  Promise API
 ```
 const { promiseApi: pipsqueak } = require('pipsqueak');
 
@@ -30,8 +31,7 @@ const p = pipsqueak({ name: 'example', factory: factory, interval: '1s', delay: 
 
 setTimeout(p.stop, 60000);
 ```
-
-## TL;DR (Callback API)
+### Callback API
 ```
 const { callbackApi: pipsqueak } = require('pipsqueak');
 
@@ -45,8 +45,7 @@ const p = pipsqueak({ name: 'example', task: task, interval: '1s', delay: '1s' }
 
 setTimeout(p.stop, 60000);
 ```
-
-## TL;DR (Synchronous API)
+### Synchronous API
 ```
 const { synchronousApi: pipsqueak } = require('pipsqueak');
 
@@ -60,7 +59,6 @@ const p = pipsqueak({ name: 'example', task: task, interval: '1s', delay: '1s' }
 
 setTimeout(p.stop, 60000);
 ```
-
 ### Output
 ```
 begin: example/39195fc7-7035-48a2-9f73-ef6476ff3fdd
