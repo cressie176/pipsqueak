@@ -12,6 +12,8 @@
 
 Pipsqueak is an interval based task runner, with support for promises, callbacks and synchronous functions. Pipsqueak is also the name of a Hamster. Hamsters like running in circles. A bit like an interval based task runner.
 
+<img alt="Pipsqueak" src="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/220px-Pipsqueak_Go_Go_Hamster.png" width="220" height="188" class="thumbimage" srcset="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/330px-Pipsqueak_Go_Go_Hamster.png 1.5x, https://upload.wikimedia.org/wikipedia/en/8/87/Pipsqueak_Go_Go_Hamster.png 2x" data-file-width="341" data-file-height="292">
+
 ## TL;DR (Promise API)
 ```
 const { promiseApi: pipsqueak } = require('pipsqueak');
@@ -101,4 +103,3 @@ Emitted whenever the task errors.
 | timestamp | Uniquely identifies the run. Useful if you want to calculate task duration |
 | error     | The error object thrown, rejected or passed to the callback |
 
-<img alt="Pipsqueak" src="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/220px-Pipsqueak_Go_Go_Hamster.png" width="220" height="188" class="thumbimage" srcset="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/330px-Pipsqueak_Go_Go_Hamster.png 1.5x, https://upload.wikimedia.org/wikipedia/en/8/87/Pipsqueak_Go_Go_Hamster.png 2x" data-file-width="341" data-file-height="292">
