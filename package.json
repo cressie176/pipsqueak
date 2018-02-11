@@ -14,7 +14,16 @@
   },
   "keywords": [
     "task",
-    "runner"
+    "runner",
+    "promise",
+    "async",
+    "sync",
+    "await",
+    "synchronous",
+    "asynchronous",
+    "callback",
+    "interval",
+    "delay"
   ],
   "author": "Stephen Cresswell",
   "license": "ISC",
