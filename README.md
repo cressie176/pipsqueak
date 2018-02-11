@@ -100,27 +100,36 @@ const p = pipsqueak({ name: 'example', factory, interval, delay }).start();
 ```
 
 ### Stopping
-Calling stop will cancel any schedule runs and prevent new runs from being scheduled. To wait for running tasks to complete listen to the 'stopped' event.
-```
-const p = pipsqueak(tasks)
-  .on('stopped', () => console.log('All tasks stopped');
-  .start()
-  .stop();
-```
-You can specify a shutdown timeout at a task level
+Calling stop will cancel any schedule runs and prevent new runs from being scheduled. You can specify a shutdown timeout at a task level
 ```
 const tasks = [
   { name: 'example-1', factory: factory, interval: '1s', timeout: '2s' },
   { name: 'example-2', factory: factory, interval: '5s', timeout: '5s' },
 ]
-
-const p = pipsqueak(tasks)
-  .on('stopped', () => console.log('All tasks stopped');
-  .on('timeout', ({ name }) => console.log(`${name} timedout while stopping`);
-  .start()
-  .stop();
 ```
-Only one stopped/timeout event will be emitted per call to ```stop()```
+#### Promise API
+```
+const { promiseApi: pipsqueak } = require('pipsqueak');
+
+const p = pipsqueak(tasks).start()
+p.stop().then(() => {
+  ...
+}).catch(err => {
+  console.error(err.message);
+});
+```
+#### Callback API
+```
+const { callbackApi: pipsqueak } = require('pipsqueak');
+
+const p = pipsqueak(tasks).start()
+p.stop(function(err) {
+  if (err) console.error(err.message);
+  ...
+})
+```
+#### Synchronous API
+Synchronous tasks are blocking, so there's no need to wait for them
 
 ## Events
 
@@ -155,21 +164,5 @@ Emitted whenever the task errors.
 | iteration | Integer | The number of times the task has been executed |
 | timestamp | Integer | Uniquely identifies the run. |
 | error     | Error   | The error object thrown, rejected or passed to the callback |
-
-### stopped
-Emitted whenever all tasks have stopped. If a task timesout while shutting down, the stopped event will not be emitted.
-
-| Property  | Type    | Description |
-|-----------|---------|-------------|
-| timestamp | Integer | The current time in millis |
-
-### timeout
-Emitted if a task timesout while stopping.
-
-| Property  | Type    | Description |
-|-----------|---------|-------------|
-| name      | String  | The supplied task runner name. |
-| timestamp | Integer | The current time in millis. |
-
 
 <img alt="Pipsqueak" src="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/220px-Pipsqueak_Go_Go_Hamster.png" width="110" height="94" class="thumbimage">

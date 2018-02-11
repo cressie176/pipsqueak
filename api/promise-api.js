@@ -1,4 +1,5 @@
 var abstractApi = require('./abstract-api');
+var format = require('util').format;
 
 module.exports = function pipsqueak(options) {
 
@@ -16,7 +17,19 @@ module.exports = function pipsqueak(options) {
       });
   }
 
-  return abstractApi(run, options);
+  var api = abstractApi(run, options);
+  var wrapped = api.stop;
+  api.stop = function() {
+    return new Promise(function(resolve, reject) {
+      api.on('stopped', function() {
+        resolve();
+      }).on('timeout', function(event) {
+        reject(new Error(format('Timedout while waiting for %s task to stop', event.name)));
+      });
+      wrapped();
+    });
+  };
+  return api;
 };
 
 

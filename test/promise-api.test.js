@@ -18,17 +18,17 @@ describe('Promise API', function() {
   var slow = function() {
     return new Promise(function(resolve, reject) {
       executions++;
-      setTimeout(resolve, 500);
+      setTimeout(resolve, 300);
     });
   };
 
   afterEach(function(done) {
     executions = 0;
-    p.on('stopped', function() {
+    if (p) {
+      p.stop().then(done).catch(done);
+    } else {
       done();
-    }).on('timeout', function() {
-      done();
-    }).stop();
+    }
   });
 
   it('should pass context to the task', function(done) {
@@ -134,32 +134,36 @@ describe('Promise API', function() {
   });
 
   it('should stop', function(done) {
-    p = pipsqueak({ factory: factory, interval: '100ms', delay: '50ms', });
-    p.once('stopped', function() {
-      assert.equal(executions, 1);
-      done();
-    })
-    .start();
-    setTimeout(p.stop, 100);
+    p = pipsqueak({ factory: factory, interval: '100ms', delay: '50ms', }).start();
+    setTimeout(function() {
+      p.stop().then(function() {
+        p = null;
+        done();
+      }).catch(done);
+    }, 100);
   });
 
   it('should wait for tasks to stop', function(done) {
-    p = pipsqueak({ factory: slow, interval: '100ms',});
-    p.once('stopped', function() {
-      assert.equal(executions, 1);
-      done();
-    }).start();
-    setTimeout(p.stop);
+    p = pipsqueak({ factory: slow, interval: '100ms',}).start();
+    setTimeout(function() {
+      p.stop().then(function() {
+        assert.equal(executions, 1);
+        p = null;
+        done();
+      }).catch(done);
+    });
   });
 
   it('should timeout waiting for tasks to stop', function(done) {
-    p = pipsqueak({ name: 'awesome', factory: slow, interval: '100ms', timeout: '200ms',});
-    p.once('timeout', function(event) {
-      assert.equal(event.name, 'awesome');
-      assert.equal(executions, 1);
-      done();
-    }).start();
-    setTimeout(p.stop);
+    p = pipsqueak({ name: 'awesome', factory: slow, interval: '100ms', timeout: '200ms', }).start();
+    setTimeout(function() {
+      p.stop().catch(function(err) {
+        assert.equal(err.message, 'Timedout while waiting for awesome task to stop');
+        assert.equal(executions, 1);
+        p = null;
+        done();
+      });
+    });
   });
 
   it('should run a hamster horde', function(done) {

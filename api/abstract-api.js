@@ -34,7 +34,7 @@ module.exports = function hamsters(run, optionsList) {
     });
     if (!running) {
       api.removeListener('_stopped', onStopped);
-      api.emit('stopped', { timestamp: Date.now(), });
+      api.emit('stopped');
     }
   };
 
