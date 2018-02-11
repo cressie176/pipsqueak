@@ -75,30 +75,33 @@ end:   example/aa6b7d7f-608b-4469-b874-18fda2457a45 2018-02-10T22:42:01.029Z
 ### begin
 Emitted whenever the task begins.
 
-| Property  | Description |
-|-----------|-------------|
-| name      | The supplied task runner name. Useful if you want to aggregate metrics by task |
-| run       | Uniquely identifies the run. Useful if you want to calculate task duration |
-| timestamp | Uniquely identifies the run. Useful if you want to calculate task duration |
+| Property  | Type    | Description |
+|-----------|---------|-------------|
+| name      | String  | The supplied task runner name. Useful if you want to aggregate metrics by task |
+| run       | UUID    | Uniquely identifies the run. Useful if you want to calculate task duration |
+| iteration | Integer | The number of times the task has been executed |
+| timestamp | Integer | The current time in millis |
 
 ### end
 Emitted whenever the task finishes.
 
-| Property  | Description |
-|-----------|-------------|
-| name      | The supplied task runner name. Useful if you want to aggregate metrics by task |
-| run       | Uniquely identifies the run. Useful if you want to calculate task duration |
-| timestamp | Uniquely identifies the run. Useful if you want to calculate task duration |
-| result    | The result of the task, passed the the callback, resolved or returned |
+| Property  | Type    | Description |
+|-----------|---------|-------------|
+| name      | String  | The supplied task runner name. Useful if you want to aggregate metrics by task |
+| run       | UUID    | Uniquely identifies the run. Useful if you want to calculate task duration |
+| iteration | Integer | The number of times the task has been executed |
+| timestamp | Integer | The current time in millis |
+| result    | Mixed   | The result of the task, passed the the callback, resolved or returned |
 
 
 ### error
 Emitted whenever the task errors.
 
-| Property  | Description |
-|-----------|-------------|
-| name      | The supplied task runner name. Useful if you want to aggregate metrics by task |
-| run       | Uniquely identifies the run. Useful if you want to calculate task duration |
-| timestamp | Uniquely identifies the run. Useful if you want to calculate task duration |
-| error     | The error object thrown, rejected or passed to the callback |
+| Property  | Type    | Description |
+|-----------|---------|-------------|
+| name      | String  | The supplied task runner name. Useful if you want to aggregate metrics by task |
+| run       | UUID    | Uniquely identifies the run. Useful if you want to calculate task duration |
+| iteration | Integer | The number of times the task has been executed |
+| timestamp | Integer | Uniquely identifies the run. Useful if you want to calculate task duration |
+| error     | Error   | The error object thrown, rejected or passed to the callback |
 

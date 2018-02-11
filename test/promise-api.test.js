@@ -45,14 +45,17 @@ describe('Promise API', function() {
       assert.equal(events.length, 6);
       assert.equal(events[0].name, 'awesome');
       assert.equal(events[1].name, 'awesome');
-
-      assert.equal(events[0].run, events[1].run);
-      assert.equal(events[2].run, events[3].run);
-      assert.notEqual(events[0].run, events[2].run);
-
+      assert.equal(events[0].iteration, 0);
+      assert.equal(events[1].iteration, 0);
       assert.equal(events[1].result, 1);
+      assert.equal(events[0].run, events[1].run);
+
+      assert.equal(events[2].name, 'awesome');
+      assert.equal(events[3].name, 'awesome');
+      assert.equal(events[2].iteration, 1);
+      assert.equal(events[3].iteration, 1);
       assert.equal(events[3].result, 2);
-      assert.equal(events[5].result, 3);
+      assert.equal(events[2].run, events[3].run);
       done();
     }, 250);
   });
@@ -74,6 +77,7 @@ describe('Promise API', function() {
     setTimeout(function() {
       assert.equal(events.length, 9);
       assert.equal(events[0].name, 'awesome');
+      assert.equal(events[0].iteration, 0);
 
       assert.equal(events[0].run, events[1].run);
       assert.equal(events[1].run, events[2].run);

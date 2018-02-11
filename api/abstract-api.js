@@ -12,6 +12,7 @@ module.exports = function pipsqueak(run, options) {
   var delay = typeof options.delay === 'string' ? parse(options.delay) : options.delay || 0;
 
   var api = { start: start, stop: stop, run: run, };
+  var iteration = 0;
   var timeout;
 
   function start() {
@@ -24,7 +25,7 @@ module.exports = function pipsqueak(run, options) {
   }
 
   function schedule(delay) {
-    timeout = setTimeout(run.bind(null, api, name, factory, schedule.bind(null, interval)), delay).unref();
+    timeout = setTimeout(run.bind(null, api, name, uuid(), iteration++, factory, schedule.bind(null, interval)), delay).unref();
   }
 
   EventEmitter.call(api);
