@@ -10,7 +10,7 @@
 [![Dependency Status](https://david-dm.org/cressie176/pipsqueak.svg)](https://david-dm.org/cressie176/pipsqueak)
 [![devDependencies Status](https://david-dm.org/cressie176/pipsqueak/dev-status.svg)](https://david-dm.org/cressie176/pipsqueak?type=dev)
 
-Pipsqueak is an in memory interval based task runner, with support for promises, callbacks and synchronous functions. Pipsqueak is also the name of a Hamster. Hamsters like running in circles. A bit like an interval based task runner, but less cute.
+Pipsqueak is an in memory interval based task runner, with support for promises, callbacks and synchronous functions. Pipsqueak is also the name of a Hamster. Hamsters like running in circles. A bit like an interval based task runner, but more cute.
 
 ## TL;DR
 ###  Promise API
@@ -26,8 +26,6 @@ const p = pipsqueak({ name: 'example', factory: factory, interval: '1s', delay: 
   .on('end', ({ name, run, result }) => console.log(`end:   ${name}/${run} ${result}`))
   .on('error', ({ name, run, error }) => console.error(`error: ${name}/${run} ${error.message}`))
   .start();
-
-setTimeout(p.stop, 60000);
 ```
 n.b. In order for the promise to be re-evaluated a factory must be used
 ### Callback API
@@ -41,8 +39,6 @@ const p = pipsqueak({ name: 'example', task: task, interval: '1s', delay: '1s' }
   .on('end', ({ name, run, result }) => console.log(`end:   ${name}/${run} ${result[0]}`))
   .on('error', ({ name, run, error }) => console.error(`error: ${name}/${run} ${error.message}`))
   .start();
-
-setTimeout(p.stop, 60000);
 ```
 n.b. the results are an array
 ### Synchronous API
@@ -56,8 +52,6 @@ const p = pipsqueak({ name: 'example', task: task, interval: '1s', delay: '1s' }
   .on('end', ({ name, run, result }) => console.log(`end:   ${name}/${run} ${result}`))
   .on('error', ({ name, run, error }) => console.error(`error: ${name}/${run} ${error.message}`))
   .start();
-
-setTimeout(p.stop, 60000);
 ```
 ### Output
 ```
@@ -80,16 +74,15 @@ const factory = (ctx) => new Promise((resolve, reject) => {
   resolve(new Date().toISOString());
 })
 
-const p = pipsqueak([
+const tasks = [
   { name: 'example-1', factory: factory, interval: '1s', delay: '1s' },
-  { name: 'example-2', factory: factory, interval: '5s' }
-])
-.on('begin', ({ name, run, }) => console.log(`begin: ${name}/${run}`))
-.on('end', ({ name, run, result }) => console.log(`end:   ${name}/${run} ${result}`))
-.on('error', ({ name, run, error }) => console.error(`error: ${name}/${run} ${error.message}`))
-.start();
-
-setTimeout(p.stop, 60000);
+  { name: 'example-2', factory: factory, interval: '5s' },
+]
+const p = pipsqueak(tasks)
+  .on('begin', ({ name, run, }) => console.log(`begin: ${name}/${run}`))
+  .on('end', ({ name, run, result }) => console.log(`end:   ${name}/${run} ${result}`))
+  .on('error', ({ name, run, error }) => console.error(`error: ${name}/${run} ${error.message}`))
+  .start();
 ```
 
 ### Intervals / Delays
@@ -103,14 +96,31 @@ const factory = (ctx) => new Promise((resolve, reject) => {
 
 const interval = { min: '1m', max: '5m' };
 const delay = { max: '1m' };
-const p = pipsqueak({ name: 'example', factory, interval, delay })
-  .on('begin', ({ name, run, }) => console.log(`begin: ${name}/${run}`))
-  .on('end', ({ name, run, result }) => console.log(`end:   ${name}/${run} ${result}`))
-  .on('error', ({ name, run, error }) => console.error(`error: ${name}/${run} ${error.message}`))
-  .start();
-
-setTimeout(p.stop, 60000);
+const p = pipsqueak({ name: 'example', factory, interval, delay }).start();
 ```
+
+### Stopping
+Calling stop will cancel any schedule runs and prevent new runs from being scheduled. To wait for running tasks to complete listen to the 'stopped' event.
+```
+const p = pipsqueak(tasks)
+  .on('stopped', () => console.log('All tasks stopped');
+  .start()
+  .stop();
+```
+You can specify a shutdown timeout at a task level
+```
+const tasks = [
+  { name: 'example-1', factory: factory, interval: '1s', timeout: '2s' },
+  { name: 'example-2', factory: factory, interval: '5s', timeout: '5s' },
+]
+
+const p = pipsqueak(tasks)
+  .on('stopped', () => console.log('All tasks stopped');
+  .on('timeout', ({ name }) => console.log(`${name} timedout while stopping`);
+  .start()
+  .stop();
+```
+Only one stopped/timeout event will be emitted per call to ```stop()```
 
 ## Events
 
@@ -119,8 +129,8 @@ Emitted whenever the task begins.
 
 | Property  | Type    | Description |
 |-----------|---------|-------------|
-| name      | String  | The supplied task runner name. Useful if you want to aggregate metrics by task |
-| run       | UUID    | Uniquely identifies the run. Useful if you want to calculate task duration |
+| name      | String  | The supplied task runner name. |
+| run       | UUID    | Uniquely identifies the run. |
 | iteration | Integer | The number of times the task has been executed |
 | timestamp | Integer | The current time in millis |
 
@@ -129,8 +139,8 @@ Emitted whenever the task finishes.
 
 | Property  | Type    | Description |
 |-----------|---------|-------------|
-| name      | String  | The supplied task runner name. Useful if you want to aggregate metrics by task |
-| run       | UUID    | Uniquely identifies the run. Useful if you want to calculate task duration |
+| name      | String  | The supplied task runner name. |
+| run       | UUID    | Uniquely identifies the run. |
 | iteration | Integer | The number of times the task has been executed |
 | timestamp | Integer | The current time in millis |
 | result    | Mixed   | The result of the task, passed the the callback, resolved or returned |
@@ -140,10 +150,26 @@ Emitted whenever the task errors.
 
 | Property  | Type    | Description |
 |-----------|---------|-------------|
-| name      | String  | The supplied task runner name. Useful if you want to aggregate metrics by task |
-| run       | UUID    | Uniquely identifies the run. Useful if you want to calculate task duration |
+| name      | String  | The supplied task runner name. |
+| run       | UUID    | Uniquely identifies the run. |
 | iteration | Integer | The number of times the task has been executed |
-| timestamp | Integer | Uniquely identifies the run. Useful if you want to calculate task duration |
+| timestamp | Integer | Uniquely identifies the run. |
 | error     | Error   | The error object thrown, rejected or passed to the callback |
+
+### stopped
+Emitted whenever all tasks have stopped. If a task timesout while shutting down, the stopped event will not be emitted.
+
+| Property  | Type    | Description |
+|-----------|---------|-------------|
+| timestamp | Integer | The current time in millis |
+
+### timeout
+Emitted if a task timesout while stopping.
+
+| Property  | Type    | Description |
+|-----------|---------|-------------|
+| name      | String  | The supplied task runner name. |
+| timestamp | Integer | The current time in millis. |
+
 
 <img alt="Pipsqueak" src="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/220px-Pipsqueak_Go_Go_Hamster.png" width="110" height="94" class="thumbimage">

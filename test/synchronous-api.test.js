@@ -9,9 +9,13 @@ describe('Synchronous API', function() {
     return ++executions;
   };
 
-  afterEach(function() {
+  afterEach(function(done) {
     executions = 0;
-    p.stop();
+    p.on('stopped', function() {
+      done();
+    }).on('timeout', function() {
+      done();
+    }).stop();
   });
 
   it('should pass context to the task', function(done) {
@@ -47,6 +51,14 @@ describe('Synchronous API', function() {
 
   it('should start the task after the specified delay', function(done) {
     p = pipsqueak({ task: task, interval: '100ms', delay: '100ms', }).start();
+    setTimeout(function() {
+      assert.equal(executions, 2);
+      done();
+    }, 250);
+  });
+
+  it('should support object durations', function(done) {
+    p = pipsqueak({ task: task, interval: { min: 100, max: 100, }, delay: { min: 100, max: 100, },}).start();
     setTimeout(function() {
       assert.equal(executions, 2);
       done();
@@ -112,12 +124,13 @@ describe('Synchronous API', function() {
   });
 
   it('should stop', function(done) {
-    p = pipsqueak({ task: task, interval: '100ms', delay: '100ms', }).start();
-    p.stop();
-    setTimeout(function() {
-      assert.equal(executions, 0);
+    p = pipsqueak({ task: task, interval: '100ms', delay: '50ms', });
+    p.once('stopped', function() {
+      assert.equal(executions, 1);
       done();
-    }, 250);
+    })
+    .start();
+    setTimeout(p.stop, 100);
   });
 
   it('should run a hamster horde', function(done) {
@@ -127,14 +140,6 @@ describe('Synchronous API', function() {
     ]).start();
     setTimeout(function() {
       assert.equal(executions, 8);
-      done();
-    }, 250);
-  });
-
-  it('should support object durations', function(done) {
-    p = pipsqueak({ task: task, interval: { min: 100, max: 100, }, delay: { min: 100, max: 100, },}).start();
-    setTimeout(function() {
-      assert.equal(executions, 2);
       done();
     }, 250);
   });

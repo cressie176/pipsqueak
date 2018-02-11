@@ -9,18 +9,39 @@ module.exports = function hamsters(run, optionsList) {
   EventEmitter.call(api);
   Object.assign(api, EventEmitter.prototype);
 
-  const horde = [].concat(optionsList).map(function(options) {
+  var horde = [].concat(optionsList).map(function(options) {
     return hamster(api, run, options);
   });
 
   function start() {
-    horde.forEach(hamster => hamster.start());
+    horde.forEach(function(hamster) {
+      hamster.start();
+    });
     return api;
   }
 
   function stop() {
-    horde.forEach(hamster => hamster.stop());
+    api.on('_stopped', onStopped);
+    api.once('_timeout', onTimeout);
+    horde.forEach(function(hamster) {
+      hamster.stop();
+    });
   }
+
+  var onStopped = function(event) {
+    const running = horde.find(function(hamster) {
+      hamster.status() !== 'stopped';
+    });
+    if (!running) {
+      api.removeListener('_stopped', onStopped);
+      api.emit('stopped', { timestamp: Date.now(), });
+    }
+  };
+
+  var onTimeout = function(event) {
+    api.removeListener('_stopped', onStopped);
+    api.emit('timeout', event);
+  };
 
   return api;
 
@@ -32,34 +53,66 @@ function hamster(emitter, run, options) {
   var factory = options.factory || function(meta) {
     return options.task.bind(null, meta);
   };
-  var interval = getDuration(options.interval);
-  var delay = getDuration(options.delay);
+  var interval = getDuration(options.interval, undefined);
+  var delay = getDuration(options.delay, 0);
+  var timeout = getDuration(options.timeout, undefined);
   var iteration = 0;
-  var timeout;
+  var next;
+  var running = false;
+  var stopping = false;
 
   function start() {
     schedule(delay);
   }
 
   function stop() {
-    clearTimeout(timeout);
+    clearTimeout(next);
+    if (!running) {
+      return emitter.emit('_stopped', { name: name, iteration: iteration, });
+    }
+
+    stopping = true;
+    var checkStopped = setInterval(function() {
+      if (running) return;
+      clearInterval(checkStopped);
+      emitter.emit('_stopped', { name: name, iteration: iteration, });
+    }, 100).unref();
+
+    if (timeout === undefined) return;
+    setTimeout(function() {
+      clearInterval(interval, timeout);
+      emitter.emit('_timeout', { name: name, timestamp: Date(), });
+    }, timeout);
   }
 
   function schedule(delay) {
+    if (stopping) return;
     var ctx = { name: name, run: uuid(), iteration: iteration++, };
     var reschedule = schedule.bind(null, interval);
-    timeout = setTimeout(run.bind(null, ctx, emitter, factory, reschedule), delay).unref();
+    next = setTimeout(run.bind(null, ctx, emitter, factory, reschedule), delay).unref();
   }
 
-  return { start: start, stop: stop, };
+  function status() {
+    return running ? 'running' : 'stopped';
+  }
+
+  emitter.on('begin', function(event) {
+    running = true;
+  });
+
+  emitter.on('end', function(event) {
+    running = false;
+  });
+
+  return { start: start, stop: stop, status: status, };
 };
 
 function getMillis(duration) {
   return typeof duration === 'string' ? parse(duration) : duration;
 }
 
-function getDuration(duration) {
-  if (!duration) return 0;
+function getDuration(duration, defaultValue) {
+  if (duration === null || duration === undefined) return defaultValue;
   if (typeof duration === 'string') return parse(duration);
   if (typeof duration === 'object') {
     var min = getMillis(duration.min) || 0;

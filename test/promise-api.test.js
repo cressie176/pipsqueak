@@ -5,18 +5,35 @@ describe('Promise API', function() {
 
   var p;
   var executions = 0;
-  var factory = () => new Promise((resolve, reject) => {
-    resolve(++executions);
-  });
+  var factory = function() {
+    return new Promise(function(resolve, reject) {
+      resolve(++executions);
+    });
+  };
+  var boom = function() {
+    return new Promise(function(resolve, reject) {
+      reject(new Error('You have idea face!'));
+    });
+  };
+  var slow = function() {
+    return new Promise(function(resolve, reject) {
+      executions++;
+      setTimeout(resolve, 500);
+    });
+  };
 
-  afterEach(function() {
+  afterEach(function(done) {
     executions = 0;
-    p.stop();
+    p.on('stopped', function() {
+      done();
+    }).on('timeout', function() {
+      done();
+    }).stop();
   });
 
   it('should pass context to the task', function(done) {
     var contexts = [];
-    var factory = (ctx) => new Promise((resolve, reject) => {
+    var factory = (ctx) => new Promise(function(resolve, reject) {
       contexts.push(ctx);
       resolve();
     });
@@ -54,6 +71,14 @@ describe('Promise API', function() {
     }, 250);
   });
 
+  it('should support object durations', function(done) {
+    p = pipsqueak({ factory: factory, interval: { min: 100, max: 100, }, delay: { min: 100, max: 100, },}).start();
+    setTimeout(function() {
+      assert.equal(executions, 2);
+      done();
+    }, 250);
+  });
+
   it('should emit begin and end events', function(done) {
     var events = [];
     var handler = function(event) {
@@ -85,9 +110,6 @@ describe('Promise API', function() {
   });
 
   it('should emit error events', function(done) {
-    var boom = () => new Promise((resolve, reject) => {
-      reject(new Error('You have idea face!'));
-    });
     var events = [];
     var handler = function(event) {
       events.push(event);
@@ -112,12 +134,32 @@ describe('Promise API', function() {
   });
 
   it('should stop', function(done) {
-    p = pipsqueak({ factory: factory, interval: '100ms', delay: '100ms', }).start();
-    p.stop();
-    setTimeout(function() {
-      assert.equal(executions, 0);
+    p = pipsqueak({ factory: factory, interval: '100ms', delay: '50ms', });
+    p.once('stopped', function() {
+      assert.equal(executions, 1);
       done();
-    }, 250);
+    })
+    .start();
+    setTimeout(p.stop, 100);
+  });
+
+  it('should wait for tasks to stop', function(done) {
+    p = pipsqueak({ factory: slow, interval: '100ms',});
+    p.once('stopped', function() {
+      assert.equal(executions, 1);
+      done();
+    }).start();
+    setTimeout(p.stop);
+  });
+
+  it('should timeout waiting for tasks to stop', function(done) {
+    p = pipsqueak({ name: 'awesome', factory: slow, interval: '100ms', timeout: '200ms',});
+    p.once('timeout', function(event) {
+      assert.equal(event.name, 'awesome');
+      assert.equal(executions, 1);
+      done();
+    }).start();
+    setTimeout(p.stop);
   });
 
   it('should run a hamster horde', function(done) {
@@ -127,14 +169,6 @@ describe('Promise API', function() {
     ]).start();
     setTimeout(function() {
       assert.equal(executions, 8);
-      done();
-    }, 250);
-  });
-
-  it('should support object durations', function(done) {
-    p = pipsqueak({ factory: factory, interval: { min: 100, max: 100, }, delay: { min: 100, max: 100, },}).start();
-    setTimeout(function() {
-      assert.equal(executions, 2);
       done();
     }, 250);
   });

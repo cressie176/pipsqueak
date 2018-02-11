@@ -4,6 +4,7 @@
 ### Added
 - Hamster hordes!!!
 - Randomised durations
+- Wait for tasks to finish before stopping
 
 ## [1.0.0]
 ### Added
