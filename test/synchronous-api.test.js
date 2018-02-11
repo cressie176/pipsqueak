@@ -120,4 +120,23 @@ describe('Synchronous API', function() {
     }, 250);
   });
 
+  it('should run a hamster horde', function(done) {
+    p = pipsqueak([
+      { task: task, interval: '100ms', },
+      { task: task, interval: '50ms', },
+    ]).start();
+    setTimeout(function() {
+      assert.equal(executions, 8);
+      done();
+    }, 250);
+  });
+
+  it('should support object durations', function(done) {
+    p = pipsqueak({ task: task, interval: { min: 100, max: 100, }, delay: { min: 100, max: 100, },}).start();
+    setTimeout(function() {
+      assert.equal(executions, 2);
+      done();
+    }, 250);
+  });
+
 });

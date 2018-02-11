@@ -10,7 +10,7 @@
 [![Dependency Status](https://david-dm.org/cressie176/pipsqueak.svg)](https://david-dm.org/cressie176/pipsqueak)
 [![devDependencies Status](https://david-dm.org/cressie176/pipsqueak/dev-status.svg)](https://david-dm.org/cressie176/pipsqueak?type=dev)
 
-Pipsqueak is an interval based task runner, with support for promises, callbacks and synchronous functions. Pipsqueak is also the name of a Hamster. Hamsters like running in circles. A bit like an interval based task runner, but less cute.
+Pipsqueak is an in memory interval based task runner, with support for promises, callbacks and synchronous functions. Pipsqueak is also the name of a Hamster. Hamsters like running in circles. A bit like an interval based task runner, but less cute.
 
 ## TL;DR
 ###  Promise API
@@ -67,6 +67,49 @@ begin: example/2c3fc5c6-c5dd-4233-8979-21b047b443b6
 end:   example/2c3fc5c6-c5dd-4233-8979-21b047b443b6 2018-02-10T22:41:56.028Z
 begin: example/aa6b7d7f-608b-4469-b874-18fda2457a45
 end:   example/aa6b7d7f-608b-4469-b874-18fda2457a45 2018-02-10T22:42:01.029Z
+```
+
+## Advanced Usage
+
+### Multiple tasks
+You can specify multiple tasks by passing pipsqueak an array instead of a map
+```
+const { promiseApi: pipsqueak } = require('pipsqueak');
+
+const factory = (ctx) => new Promise((resolve, reject) => {
+  resolve(new Date().toISOString());
+})
+
+const p = pipsqueak([
+  { name: 'example-1', factory: factory, interval: '1s', delay: '1s' },
+  { name: 'example-2', factory: factory, interval: '5s' }
+])
+.on('begin', ({ name, run, }) => console.log(`begin: ${name}/${run}`))
+.on('end', ({ name, run, result }) => console.log(`end:   ${name}/${run} ${result}`))
+.on('error', ({ name, run, error }) => console.error(`error: ${name}/${run} ${error.message}`))
+.start();
+
+setTimeout(p.stop, 60000);
+```
+
+### Intervals / Delays
+You must set an interval, but an initial delay is optional. Values may be integers, [parsable](https://www.npmjs.com/package/parse-duration) strings or if you want a random duration, an object containing `max` and optional `min` properties.
+```
+const { promiseApi: pipsqueak } = require('pipsqueak');
+
+const factory = (ctx) => new Promise((resolve, reject) => {
+  resolve(new Date().toISOString());
+})
+
+const interval = { min: '1m', max: '5m' };
+const delay = { max: '1m' };
+const p = pipsqueak({ name: 'example', factory, interval, delay })
+  .on('begin', ({ name, run, }) => console.log(`begin: ${name}/${run}`))
+  .on('end', ({ name, run, result }) => console.log(`end:   ${name}/${run} ${result}`))
+  .on('error', ({ name, run, error }) => console.error(`error: ${name}/${run} ${error.message}`))
+  .start();
+
+setTimeout(p.stop, 60000);
 ```
 
 ## Events
