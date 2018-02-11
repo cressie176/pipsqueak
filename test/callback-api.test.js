@@ -5,7 +5,7 @@ describe('Callback API', function() {
 
   var p;
   var executions = 0;
-  var task = function(cb) {
+  var task = function(name, id, iteration, cb) {
     cb(null, ++executions);
   };
 
@@ -64,7 +64,7 @@ describe('Callback API', function() {
   });
 
   it('should emit error events', function(done) {
-    var boom = function(cb) {
+    var boom = function(name, id, iteration, cb) {
       setImmediate(function() {
         cb(new Error('You have idea face!'));
       });

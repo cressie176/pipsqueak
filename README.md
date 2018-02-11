@@ -19,7 +19,7 @@ Pipsqueak is an interval based task runner, with support for promises, callbacks
 ```
 const { promiseApi: pipsqueak } = require('pipsqueak');
 
-const factory = () => new Promise((resolve, reject) => {
+const factory = (name, run, iteration) => new Promise((resolve, reject) => {
   resolve(new Date().toISOString());
 })
 
@@ -31,11 +31,12 @@ const p = pipsqueak({ name: 'example', factory: factory, interval: '1s', delay: 
 
 setTimeout(p.stop, 60000);
 ```
+n.b. In order for the promise to be re-evaluated a factory must be used
 ### Callback API
 ```
 const { callbackApi: pipsqueak } = require('pipsqueak');
 
-const task = cb => cb(null, new Date().toISOString());
+const task = (name, run, iteration, cb) => cb(null, new Date().toISOString());
 
 const p = pipsqueak({ name: 'example', task: task, interval: '1s', delay: '1s' })
   .on('begin', ({ name, run, }) => console.log(`begin: ${name}/${run}`))
@@ -50,7 +51,7 @@ n.b. the results are an array
 ```
 const { synchronousApi: pipsqueak } = require('pipsqueak');
 
-const task = () => new Date().toISOString();
+const task = (name, run, iteration) => new Date().toISOString();
 
 const p = pipsqueak({ name: 'example', task: task, interval: '1s', delay: '1s' })
   .on('begin', ({ name, run, }) => console.log(`begin: ${name}/${run}`))

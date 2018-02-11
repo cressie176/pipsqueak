@@ -5,8 +5,8 @@ var EventEmitter = require('events').EventEmitter;
 module.exports = function pipsqueak(run, options) {
 
   var name = options.name || uuid();
-  var factory = options.factory || function() {
-    return options.task;
+  var factory = options.factory || function(name, id, iteration) {
+    return options.task.bind(null, name, id, iteration);
   };
   var interval = typeof options.interval === 'string' ? parse(options.interval) : options.interval;
   var delay = typeof options.delay === 'string' ? parse(options.delay) : options.delay || 0;
