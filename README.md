@@ -94,7 +94,6 @@ Emitted whenever the task finishes.
 | timestamp | Integer | The current time in millis |
 | result    | Mixed   | The result of the task, passed the the callback, resolved or returned |
 
-
 ### error
 Emitted whenever the task errors.
 
@@ -105,4 +104,3 @@ Emitted whenever the task errors.
 | iteration | Integer | The number of times the task has been executed |
 | timestamp | Integer | Uniquely identifies the run. Useful if you want to calculate task duration |
 | error     | Error   | The error object thrown, rejected or passed to the callback |
-
