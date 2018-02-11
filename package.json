@@ -40,7 +40,8 @@
     "test": "test"
   },
   "dependencies": {
-    "parse-duration": "^0.1.1"
+    "parse-duration": "^0.1.1",
+    "uuid": "^3.2.1"
   },
   "repository": {
     "type": "git",
