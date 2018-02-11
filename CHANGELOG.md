@@ -5,6 +5,8 @@
 - Hamster hordes!!!
 - Randomised durations
 - Wait for tasks to finish before stopping
+- Disabled config flag
+- Added debug
 
 ## [1.0.0]
 ### Added

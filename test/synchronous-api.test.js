@@ -65,6 +65,14 @@ describe('Synchronous API', function() {
     }, 250);
   });
 
+  it('should ignore disabled tasks', function(done) {
+    p = pipsqueak({ task: task, disabled: true, interval: '100ms', }).start();
+    setTimeout(function() {
+      assert.equal(executions, 0);
+      done();
+    }, 250);
+  });
+
   it('should emit begin and end events', function(done) {
     var events = [];
     var handler = function(event) {

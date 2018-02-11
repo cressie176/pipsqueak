@@ -14,7 +14,7 @@ Pipsqueak is an in memory interval based task runner, with support for promises,
 
 ## TL;DR
 ###  Promise API
-```
+```javascript
 const { promiseApi: pipsqueak } = require('pipsqueak');
 
 const factory = (ctx) => new Promise((resolve, reject) => {
@@ -29,7 +29,7 @@ const p = pipsqueak({ name: 'example', factory: factory, interval: '1s', delay: 
 ```
 n.b. In order for the promise to be re-evaluated a factory must be used
 ### Callback API
-```
+```javascript
 const { callbackApi: pipsqueak } = require('pipsqueak');
 
 const task = (ctx, cb) => cb(null, new Date().toISOString());
@@ -42,7 +42,7 @@ const p = pipsqueak({ name: 'example', task: task, interval: '1s', delay: '1s' }
 ```
 n.b. the results are an array
 ### Synchronous API
-```
+```javascript
 const { synchronousApi: pipsqueak } = require('pipsqueak');
 
 const task = (ctx) => new Date().toISOString();
@@ -67,7 +67,7 @@ end:   example/aa6b7d7f-608b-4469-b874-18fda2457a45 2018-02-10T22:42:01.029Z
 
 ### Multiple tasks
 You can specify multiple tasks by passing pipsqueak an array instead of a map
-```
+```javascript
 const { promiseApi: pipsqueak } = require('pipsqueak');
 
 const factory = (ctx) => new Promise((resolve, reject) => {
@@ -87,7 +87,7 @@ const p = pipsqueak(tasks)
 
 ### Intervals / Delays
 You must set an interval, but an initial delay is optional. Values may be integers, [parsable](https://www.npmjs.com/package/parse-duration) strings or if you want a random duration, an object containing `max` and optional `min` properties.
-```
+```javascript
 const { promiseApi: pipsqueak } = require('pipsqueak');
 
 const factory = (ctx) => new Promise((resolve, reject) => {
@@ -101,14 +101,14 @@ const p = pipsqueak({ name: 'example', factory, interval, delay }).start();
 
 ### Stopping
 Calling stop will cancel any schedule runs and prevent new runs from being scheduled. You can specify a shutdown timeout at a task level
-```
+```javascript
 const tasks = [
   { name: 'example-1', factory: factory, interval: '1s', timeout: '2s' },
   { name: 'example-2', factory: factory, interval: '5s', timeout: '5s' },
 ]
 ```
 #### Promise API
-```
+```javascript
 const { promiseApi: pipsqueak } = require('pipsqueak');
 
 const p = pipsqueak(tasks).start()
@@ -119,7 +119,7 @@ p.stop().then(() => {
 });
 ```
 #### Callback API
-```
+```javascript
 const { callbackApi: pipsqueak } = require('pipsqueak');
 
 const p = pipsqueak(tasks).start()
@@ -130,6 +130,13 @@ p.stop(function(err) {
 ```
 #### Synchronous API
 Synchronous tasks are blocking, so there's no need to wait for them
+
+### Disabling Tasks
+If you want to configure, but disable a specific tasks (maybe because it should only run under specific conditions, set `disabled` to true, e.g.
+```javascript
+pipsqueak({ name: 'example', task: task, interval: '1s', disabled: true })
+
+```
 
 ## Events
 
@@ -164,5 +171,8 @@ Emitted whenever the task errors.
 | iteration | Integer | The number of times the task has been executed |
 | timestamp | Integer | Uniquely identifies the run. |
 | error     | Error   | The error object thrown, rejected or passed to the callback |
+
+## Debug
+To run with debug enabled set `DEBUG=pipsqueak`
 
 <img alt="Pipsqueak" src="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/220px-Pipsqueak_Go_Go_Hamster.png" width="110" height="94" class="thumbimage">

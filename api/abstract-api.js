@@ -1,3 +1,4 @@
+var debug = require('debug')('pipsqueak');
 var uuid = require('uuid').v4;
 var parse = require('parse-duration');
 var EventEmitter = require('events').EventEmitter;
@@ -50,6 +51,7 @@ module.exports = function hamsters(run, optionsList) {
 function hamster(emitter, run, options) {
 
   var name = options.name || uuid();
+  var enabled = !options.disabled;
   var factory = options.factory || function(meta) {
     return options.task.bind(null, meta);
   };
@@ -62,24 +64,30 @@ function hamster(emitter, run, options) {
   var stopping = false;
 
   function start() {
+    if (!enabled) return;
+    debug('%s is starting', name);
     schedule(delay);
   }
 
   function stop() {
+    debug('%s is waiting to stop', name);
     clearTimeout(next);
     if (!running) {
+      debug('%s has stopped', name);
       return emitter.emit('_stopped', { name: name, iteration: iteration, });
     }
 
     stopping = true;
     var checkStopped = setInterval(function() {
       if (running) return;
+      debug('%s has stopped', name);
       clearInterval(checkStopped);
       emitter.emit('_stopped', { name: name, iteration: iteration, });
     }, 100).unref();
 
     if (timeout === undefined) return;
     setTimeout(function() {
+      debug('%s timedout', name);
       clearInterval(interval, timeout);
       emitter.emit('_timeout', { name: name, timestamp: Date(), });
     }, timeout);
@@ -87,6 +95,7 @@ function hamster(emitter, run, options) {
 
   function schedule(delay) {
     if (stopping) return;
+    debug('%s is scheduled to run in %d milliseconds', name, delay);
     var ctx = { name: name, run: uuid(), iteration: iteration++, };
     var reschedule = schedule.bind(null, interval);
     next = setTimeout(run.bind(null, ctx, emitter, factory, reschedule), delay).unref();
