@@ -1,6 +1,6 @@
 const { callbackApi: pipsqueak } = require('..');
 
-const task = (name, run, iteration, cb) => cb(null, new Date().toISOString());
+const task = (ctx, cb) => cb(null, new Date().toISOString());
 
 console.log('Callback Example')
 console.log('----------------')

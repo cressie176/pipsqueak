@@ -5,13 +5,37 @@ describe('Callback API', function() {
 
   var p;
   var executions = 0;
-  var task = function(name, id, iteration, cb) {
+  var task = function(ctx, cb) {
     cb(null, ++executions);
   };
 
   afterEach(function() {
     executions = 0;
     p.stop();
+  });
+
+  it('should pass context to the task', function(done) {
+    var contexts = [];
+    var task = function(ctx, cb) {
+      contexts.push(ctx);
+      cb();
+    };
+    p = pipsqueak({ name: 'awesome', task: task, interval: '100ms', }).start();
+
+    setTimeout(function() {
+      assert.equal(contexts.length, 3);
+
+      assert.equal(contexts[0].name, 'awesome');
+      assert.equal(contexts[0].iteration, 0);
+      assert.ok(contexts[0].run);
+
+      assert.equal(contexts[1].name, 'awesome');
+      assert.equal(contexts[1].iteration, 1);
+      assert.ok(contexts[1].run);
+
+      assert.notEqual(contexts[0].run, contexts[1].run);
+      done();
+    }, 250);
   });
 
   it('should run the task at the specified interval', function(done) {
@@ -64,7 +88,7 @@ describe('Callback API', function() {
   });
 
   it('should emit error events', function(done) {
-    var boom = function(name, id, iteration, cb) {
+    var boom = function(ctx, cb) {
       setImmediate(function() {
         cb(new Error('You have idea face!'));
       });

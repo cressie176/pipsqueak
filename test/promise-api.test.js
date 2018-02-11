@@ -14,6 +14,30 @@ describe('Promise API', function() {
     p.stop();
   });
 
+  it('should pass context to the task', function(done) {
+    var contexts = [];
+    var factory = (ctx) => new Promise((resolve, reject) => {
+      contexts.push(ctx);
+      resolve();
+    });
+    p = pipsqueak({ name: 'awesome', factory: factory, interval: '100ms', }).start();
+
+    setTimeout(function() {
+      assert.equal(contexts.length, 3);
+
+      assert.equal(contexts[0].name, 'awesome');
+      assert.equal(contexts[0].iteration, 0);
+      assert.ok(contexts[0].run);
+
+      assert.equal(contexts[1].name, 'awesome');
+      assert.equal(contexts[1].iteration, 1);
+      assert.ok(contexts[1].run);
+
+      assert.notEqual(contexts[0].run, contexts[1].run);
+      done();
+    }, 250);
+  });
+
   it('should run the task at the specified interval', function(done) {
     p = pipsqueak({ factory: factory, interval: '100ms', }).start();
     setTimeout(function() {

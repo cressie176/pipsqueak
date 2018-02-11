@@ -1,6 +1,6 @@
 const { synchronousApi: pipsqueak } = require('..');
 
-const task = (name, run, iteration) => new Date().toISOString();
+const task = (ctx) => new Date().toISOString();
 
 console.log('Synchronous Example')
 console.log('-------------------')

@@ -1,6 +1,6 @@
 const { promiseApi: pipsqueak } = require('..');
 
-const factory = (name, run, iteration) => new Promise((resolve, reject) => {
+const factory = (ctx) => new Promise((resolve, reject) => {
   resolve(new Date().toISOString());
 })
 
