@@ -1,6 +1,6 @@
 {
   "name": "pipsqueak",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "An interval based task runner",
   "main": "index.js",
   "scripts": {
