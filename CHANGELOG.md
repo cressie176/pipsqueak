@@ -3,6 +3,7 @@
 ## 2.1.0
 ### Updated
 - Removed codeclimate from dev dependencies
+- Improved readme
 
 ## 2.0.0
 ### Added
