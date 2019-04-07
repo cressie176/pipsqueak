@@ -1,8 +1,12 @@
 # Change Log
 
+## 2.4.0
+### Updated
+- Dependencies
+
 ## 2.3.0
 ### Updated
-- Updated dependencies
+- Dependencies
 
 ## 2.2.0
 ### Updated
