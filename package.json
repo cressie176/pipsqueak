@@ -28,7 +28,7 @@
   "author": "Stephen Cresswell",
   "license": "ISC",
   "devDependencies": {
-    "eslint": "^5.16.0",
+    "eslint": "^6.0.0",
     "eslint-config-imperative": "^2.1.0",
     "eslint-plugin-imperative": "^2.1.0",
     "husky": "^1.3.1",
