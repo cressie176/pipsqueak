@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.5.1
+### Updated
+- Dependencies
+
 ## 2.4.0
 ### Updated
 - Dependencies
