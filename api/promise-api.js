@@ -25,9 +25,9 @@ module.exports = function pipsqueak(options) {
   var wrapped = api.stop;
   api.stop = function() {
     return new Promise(function(resolve, reject) {
-      api.on('stopped', function() {
+      api.once('stopped', function() {
         resolve();
-      }).on('timeout', function(event) {
+      }).once('timeout', function(event) {
         reject(new Error(format('Timedout while waiting for %s task to stop', event.name)));
       });
       wrapped();

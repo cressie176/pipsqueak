@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "debug": "^4.1.1",
+    "forward-events": "0.0.1",
     "parse-duration": "^0.3.3",
     "uuid": "^8.0.0"
   },

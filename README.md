@@ -124,7 +124,7 @@ p.stop().then(() => {
 ```javascript
 const { callbackApi: pipsqueak } = require('pipsqueak');
 
-const p = pipsqueak(tasks).start()
+const p = pipsqueak(tasks).start();
 p.stop(function(err) {
   if (err) console.error(err.message);
   ...
@@ -132,6 +132,18 @@ p.stop(function(err) {
 ```
 #### Synchronous API
 Synchronous tasks are blocking, so there's no need to wait for them
+
+### Poking Tasks
+You can force a task or tasks to run by poking them.
+```js
+const p = pipsqueak(tasks).start();
+p.poke();
+p.poke('task1');
+p.poke(['task1', 'task2']);
+```
+If pipsqueak is stopped, or the task was running or disabled, poking it will have no effect.
+If pipsqueak was not started, the task will be run once, but not scheduled
+If pipsqueak was started, the next schedule will be cancelled, the task will be run once and rescheduled.
 
 ### Disabling Tasks
 If you want to configure, but disable a specific tasks (maybe because it should only run under specific conditions, set `disabled` to true, e.g.

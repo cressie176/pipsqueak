@@ -2,10 +2,11 @@ var debug = require('debug')('pipsqueak');
 var uuid = require('uuid').v4;
 var parse = require('parse-duration');
 var EventEmitter = require('events').EventEmitter;
+var forward = require('forward-events');
 
 module.exports = function hamsters(run, optionsList) {
 
-  var api = { start: start, stop: stop, };
+  var api = { start: start, stop: stop, poke: poke, };
 
   EventEmitter.call(api);
   Object.assign(api, EventEmitter.prototype);
@@ -29,8 +30,23 @@ module.exports = function hamsters(run, optionsList) {
     });
   }
 
+  function poke(names) {
+    horde.filter(byNames(names)).forEach(function(hamster) {
+      hamster.poke();
+    });
+    return api;
+  }
+
+  function byNames(names) {
+    return function(hamster) {
+      if (!names) return true;
+      if ([].concat(names).includes(hamster.name)) return true;
+      return false;
+    };
+  }
+
   var onStopped = function(event) {
-    const running = horde.find(function(hamster) {
+    var running = horde.find(function(hamster) {
       hamster.status() !== 'stopped';
     });
     if (!running) {
@@ -48,7 +64,7 @@ module.exports = function hamsters(run, optionsList) {
 
 };
 
-function hamster(emitter, run, options) {
+function hamster(hordeEmitter, run, options) {
 
   var name = options.name || uuid();
   var enabled = !options.disabled;
@@ -62,6 +78,8 @@ function hamster(emitter, run, options) {
   var next;
   var running = false;
   var stopping = false;
+  var emitter = new EventEmitter();
+  forward(emitter, hordeEmitter);
 
   function start() {
     if (!enabled) return;
@@ -71,26 +89,33 @@ function hamster(emitter, run, options) {
 
   function stop() {
     debug('%s is waiting to stop', name);
+    stopping = true;
     clearTimeout(next);
+
     if (!running) {
       debug('%s has stopped', name);
       return emitter.emit('_stopped', { name: name, iteration: iteration, });
     }
 
-    stopping = true;
-    var checkStopped = setInterval(function() {
-      if (running) return;
+    function checkStopped() {
+      if (running) return false;
       debug('%s has stopped', name);
-      clearInterval(checkStopped);
+      clearInterval(checkStoppedId);
+      clearTimeout(checkTimeoutId);
       emitter.emit('_stopped', { name: name, iteration: iteration, });
-    }, 100).unref();
+      return true;
+    }
+
+    function checkTimeout() {
+      debug('%s timedout', name);
+      clearInterval(checkStoppedId);
+      emitter.emit('_timeout', { name: name, timestamp: Date(), });
+    }
+
+    var checkStoppedId = setInterval(checkStopped, 100).unref();
 
     if (timeout === undefined) return;
-    setTimeout(function() {
-      debug('%s timedout', name);
-      clearInterval(interval, timeout);
-      emitter.emit('_timeout', { name: name, timestamp: Date(), });
-    }, timeout);
+    var checkTimeoutId = setTimeout(checkTimeout, timeout).unref();
   }
 
   function schedule(delay) {
@@ -99,6 +124,15 @@ function hamster(emitter, run, options) {
     var ctx = { name: name, run: uuid(), iteration: iteration++, };
     var reschedule = schedule.bind(null, interval);
     next = setTimeout(run.bind(null, ctx, emitter, factory, reschedule), delay).unref();
+  }
+
+  function poke() {
+    if (!enabled || stopping || running) return;
+    debug('Poking %s', name);
+    var ctx = { name: name, run: uuid(), iteration: iteration++, };
+    var reschedule = next ? schedule.bind(null, interval) : function() {};
+    clearTimeout(next);
+    run(ctx, emitter, factory, reschedule);
   }
 
   function status() {
@@ -113,7 +147,15 @@ function hamster(emitter, run, options) {
     running = false;
   });
 
-  return { start: start, stop: stop, status: status, };
+  return {
+    start: start,
+    stop: stop,
+    poke: poke,
+    status: status,
+    get name() {
+      return name;
+    },
+  };
 };
 
 function getMillis(duration) {
@@ -130,5 +172,3 @@ function getDuration(duration, defaultValue) {
   }
   return duration;
 }
-
-

@@ -141,7 +141,7 @@ describe('Synchronous API', function() {
     setTimeout(p.stop, 100);
   });
 
-  it('should run a hamster horde', function(done) {
+  it('should start a hamster horde', function(done) {
     p = pipsqueak([
       { task: task, interval: '100ms', },
       { task: task, interval: '50ms', },
@@ -150,6 +150,82 @@ describe('Synchronous API', function() {
       assert.equal(executions, 8);
       done();
     }, 250);
+  });
+
+  it('should poke a hamster horde', function(done) {
+    p = pipsqueak([
+      { task: task, interval: '100ms', },
+      { task: task, interval: '50ms', },
+    ]).poke();
+    setTimeout(function() {
+      assert.equal(executions, 2);
+      done();
+    }, 250);
+  });
+
+  it('should poke a subset of a hamster horde', function(done) {
+    p = pipsqueak([
+      { name: 'rod', task: task, interval: '50ms', },
+      { name: 'jane', task: task, interval: '50ms', },
+      { name: 'freddy', task: task, interval: '50ms', },
+    ]).poke(['rod', 'jane',]);
+    setTimeout(function() {
+      assert.equal(executions, 2);
+      done();
+    }, 250);
+  });
+
+  it('should poke a single hamster in a hamster horde', function(done) {
+    p = pipsqueak([
+      { name: 'rod', task: task, interval: '50ms', },
+      { name: 'jane', task: task, interval: '50ms', },
+      { name: 'freddy', task: task, interval: '50ms', },
+    ]).poke('rod');
+    setTimeout(function() {
+      assert.equal(executions, 1);
+      done();
+    }, 250);
+  });
+
+  it('should resume existing schedule after being poked', function(done) {
+    p = pipsqueak([
+      { name: 'rod', task: task, interval: '100ms', },
+      { name: 'jane', task: task, interval: '100ms', },
+      { name: 'freddy', task: task, interval: '100ms', },
+    ]).start();
+    setTimeout(function() {
+      assert.equal(executions, 3);
+      p.poke('rod');
+      setTimeout(function() {
+        assert.equal(executions, 4);
+        setTimeout(function() {
+          assert.equal(executions, 6);
+          done();
+        }, 50);
+      }, 25);
+    }, 50);
+  });
+
+  it('should not poke disabled tasks', function(done) {
+    p = pipsqueak([
+      { task: task, interval: '50ms', disabled: true, },
+    ]).poke();
+    setTimeout(function() {
+      assert.equal(executions, 0);
+      done();
+    }, 100);
+  });
+
+  it('should not poke stopped tasks', function(done) {
+    p = pipsqueak([
+      { task: task, interval: '50ms', },
+    ]);
+    p.stop();
+    p.poke();
+    setTimeout(function() {
+      assert.equal(executions, 0);
+      done();
+    }, 100);
   });
 
 });

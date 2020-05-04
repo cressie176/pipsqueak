@@ -22,9 +22,9 @@ module.exports = function pipsqueak(options) {
   var api = abstractApi(run, options);
   var wrapped = api.stop;
   api.stop = function(cb) {
-    api.on('stopped', function() {
+    api.once('stopped', function() {
       cb();
-    }).on('timeout', function(event) {
+    }).once('timeout', function(event) {
       cb(new Error(format('Timedout while waiting for %s task to stop', event.name)));
     });
     wrapped();
