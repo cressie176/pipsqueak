@@ -16,3 +16,5 @@ ratings:
   paths:
   - index.js
   - lib/**
+exclude_patterns:
+- "examples/**"
