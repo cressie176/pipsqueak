@@ -1,7 +1,7 @@
 {
   "name": "pipsqueak",
   "version": "2.6.0",
-  "description": "An interval based task runner",
+  "description": "An interval based scheduler with support for promises, callbacks and synchronous task",
   "main": "index.js",
   "scripts": {
     "coverage": "nyc --report html --reporter lcov --reporter text-summary mocha test",
@@ -12,6 +12,7 @@
   },
   "keywords": [
     "task",
+    "scheduler",
     "runner",
     "promise",
     "async",
