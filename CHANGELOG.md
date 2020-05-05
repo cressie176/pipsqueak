@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.6.1
+### Updated
+- Readme
+
 ## 2.6.0
 ### Updated
 - Fixed a bug where if any hamster was running, all hamsters were reported as running
