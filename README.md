@@ -10,7 +10,7 @@
 [![Dependency Status](https://david-dm.org/cressie176/pipsqueak.svg)](https://david-dm.org/cressie176/pipsqueak)
 [![devDependencies Status](https://david-dm.org/cressie176/pipsqueak/dev-status.svg)](https://david-dm.org/cressie176/pipsqueak?type=dev)
 
-Pipsqueak is an in memory interval based task runner, with support for promises, callbacks and synchronous functions. Pipsqueak is also the name of a Hamster. Hamsters like running in circles. A bit like an interval based task runner, but more cute.
+Pipsqueak is an in memory interval based task scheduler, with support for promises, callbacks and synchronous functions. Pipsqueak is also the name of a Hamster. Hamsters like running in circles. A bit like an interval based task scheduler, but more cute.
 
 <img alt="Pipsqueak" src="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/220px-Pipsqueak_Go_Go_Hamster.png" width="110" height="94" class="thumbimage">
 
