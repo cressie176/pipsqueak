@@ -142,7 +142,7 @@ p.poke('task1');
 p.poke(['task1', 'task2']);
 ```
 If pipsqueak is stopped, or the task was running or disabled, poking it will have no effect.
-If pipsqueak was not started, the task will be run once, but not scheduled
+If pipsqueak was not started, the task will be run once, but not scheduled.
 If pipsqueak was started, the next schedule will be cancelled, the task will be run once and rescheduled.
 
 ### Disabling Tasks
