@@ -40,7 +40,7 @@
   "dependencies": {
     "debug": "^4.1.1",
     "forward-events": "0.0.1",
-    "parse-duration": "^0.4.0",
+    "parse-duration": "^0.4.2",
     "uuid": "^8.0.0"
   },
   "engines": {

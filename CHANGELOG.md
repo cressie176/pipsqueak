@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.6.3
+### Updated
+- Bump dependencies, re-instate Node 14 tests
+
 ## 2.6.2
 ### Updated
 - Bump dependencies
