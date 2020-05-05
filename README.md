@@ -14,8 +14,15 @@ Pipsqueak is an in memory interval based task scheduler, with support for promis
 
 <img alt="Pipsqueak" src="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Pipsqueak_Go_Go_Hamster.png/220px-Pipsqueak_Go_Go_Hamster.png" width="110" height="94" class="thumbimage">
 
-## TL;DR
-###  Promise API
+## Advantages Over setInterval / setTimeout
+Use Pipsqueak and you can:
+- Monitor a task's lifecycle through `begin`, `end` and `error` events
+- Reduce the boilerplate code associated with setTimeout/setInterval
+- Randomly stagger execution when running multiple instances
+- Configure intervals in human readable form
+- Stop worrying about [unref](https://nodejs.org/api/timers.html#timers_timeout_unref)
+
+## Promise API
 ```javascript
 const { promiseApi: pipsqueak } = require('pipsqueak');
 
@@ -30,7 +37,7 @@ const p = pipsqueak({ name: 'example', factory: factory, interval: '1s', delay: 
   .start();
 ```
 n.b. In order for the promise to be re-evaluated a factory must be used
-### Callback API
+## Callback API
 ```javascript
 const { callbackApi: pipsqueak } = require('pipsqueak');
 
@@ -43,7 +50,7 @@ const p = pipsqueak({ name: 'example', task: task, interval: '1s', delay: '1s' }
   .start();
 ```
 n.b. the results are an array
-### Synchronous API
+## Synchronous API
 ```javascript
 const { synchronousApi: pipsqueak } = require('pipsqueak');
 
@@ -55,7 +62,7 @@ const p = pipsqueak({ name: 'example', task: task, interval: '1s', delay: '1s' }
   .on('error', ({ name, run, error }) => console.error(`error: ${name}/${run} ${error.message}`))
   .start();
 ```
-### Output
+## Output
 ```
 begin: example/39195fc7-7035-48a2-9f73-ef6476ff3fdd
 end:   example/39195fc7-7035-48a2-9f73-ef6476ff3fdd 2018-02-10T22:41:51.025Z
