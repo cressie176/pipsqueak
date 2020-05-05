@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.6.2
+### Updated
+- Bump dependencies
+
 ## 2.6.1
 ### Updated
 - Readme
