@@ -1,6 +1,6 @@
 {
   "name": "pipsqueak",
-  "version": "2.6.3",
+  "version": "2.7.0",
   "description": "An interval based scheduler with support for promises, callbacks and synchronous task",
   "main": "index.js",
   "scripts": {
