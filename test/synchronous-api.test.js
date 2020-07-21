@@ -216,6 +216,16 @@ describe('Synchronous API', function() {
     }, 100);
   });
 
+  it('should poke disabled tasks with force parameter', function(done) {
+    p = pipsqueak([
+      { task: task, interval: '50ms', disabled: true, },
+    ]).poke(true);
+    setTimeout(function() {
+      assert.equal(executions, 1);
+      done();
+    }, 100);
+  });
+
   it('should not poke stopped tasks', function(done) {
     p = pipsqueak([
       { task: task, interval: '50ms', },

@@ -30,9 +30,10 @@ module.exports = function hamsters(run, optionsList) {
     });
   }
 
-  function poke(names) {
+  function poke(namesParam, forceParam) {
+    const [names, force,] = getPokeOptions(namesParam, forceParam);
     horde.filter(byNames(names)).forEach(function(hamster) {
-      hamster.poke();
+      hamster.poke(force);
     });
     return api;
   }
@@ -126,8 +127,8 @@ function hamster(hordeEmitter, run, options) {
     next = setTimeout(run.bind(null, ctx, emitter, factory, reschedule), delay).unref();
   }
 
-  function poke() {
-    if (!enabled || stopping || running) return;
+  function poke(force) {
+    if ((!enabled && !force) || stopping || running) return;
     debug('Poking %s', name);
     var ctx = { name: name, run: uuid(), iteration: iteration++, };
     var reschedule = next ? schedule.bind(null, interval) : function() {};
@@ -171,4 +172,9 @@ function getDuration(duration, defaultValue) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
   return duration;
+}
+
+function getPokeOptions(names, force) {
+  if (typeof names === 'boolean' && force === undefined) return [undefined, names,];
+  return [names, force,];
 }
