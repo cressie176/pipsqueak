@@ -4,6 +4,9 @@
 ### Added
 - Force poke will cause the job to run even when it is disabled
 
+### Updated
+- Bump dependencies
+
 ## 2.6.3
 ### Updated
 - Bump dependencies, re-instate Node 14 tests

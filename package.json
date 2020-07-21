@@ -27,12 +27,12 @@
   "author": "Stephen Cresswell",
   "license": "ISC",
   "devDependencies": {
-    "eslint": "^6.8.0",
+    "eslint": "^7.5.0",
     "eslint-config-imperative": "^3.0.0",
     "eslint-plugin-imperative": "^3.0.0",
     "husky": "^4.2.5",
-    "mocha": "^7.1.2",
-    "nyc": "^15.0.1"
+    "mocha": "^8.0.1",
+    "nyc": "^15.1.0"
   },
   "directories": {
     "test": "test"
