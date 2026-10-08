@@ -144,6 +144,18 @@ describe('Synchronous API', () => {
     setTimeout(p.stop, 100);
   });
 
+  it('should report the status of each hamster', () => {
+    p = pipsqueak([
+      { name: 'lazy', task, interval: '1s', delay: '1s' },
+      { name: 'off', task, interval: '1s', disabled: true },
+    ]);
+    assert.deepEqual(p.status(), { lazy: 'idle', off: 'disabled' });
+    assert.equal(p.status('lazy'), 'idle');
+    assert.equal(p.status('nope'), undefined);
+    p.start().stop();
+    assert.deepEqual(p.status(), { lazy: 'stopped', off: 'disabled' });
+  });
+
   it('should start a hamster horde', (_t, done) => {
     p = pipsqueak([
       { task, interval: '100ms' },

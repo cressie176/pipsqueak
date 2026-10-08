@@ -5,7 +5,7 @@ const { EventEmitter } = require('node:events');
 const forward = require('forward-events');
 
 module.exports = function hamsters(run, optionsList) {
-  const api = Object.assign(new EventEmitter(), { start, stop, poke });
+  const api = Object.assign(new EventEmitter(), { start, stop, poke, status });
 
   const horde = [optionsList]
     .flat()
@@ -34,6 +34,15 @@ module.exports = function hamsters(run, optionsList) {
     return api;
   }
 
+  function status(names) {
+    const statuses = Object.fromEntries(
+      horde
+        .filter(byNames(names))
+        .map((hamster) => [hamster.name, hamster.status()]),
+    );
+    return typeof names === 'string' ? statuses[names] : statuses;
+  }
+
   function byNames(names) {
     return (hamster) => {
       if (!names) return true;
@@ -43,7 +52,7 @@ module.exports = function hamsters(run, optionsList) {
   }
 
   const onStopped = (_event) => {
-    const running = horde.find((hamster) => hamster.status() !== 'stopped');
+    const running = horde.find((hamster) => hamster.status() === 'running');
     if (!running) {
       api.removeListener('_stopped', onStopped);
       api.emit('stopped');
@@ -136,7 +145,10 @@ function hamster(hordeEmitter, run, options) {
   }
 
   function status() {
-    return running ? 'running' : 'stopped';
+    if (running) return 'running';
+    if (!enabled) return 'disabled';
+    if (stopping) return 'stopped';
+    return 'idle';
   }
 
   emitter.on('begin', (_event) => {

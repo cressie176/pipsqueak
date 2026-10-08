@@ -1,6 +1,9 @@
 # Change Log
 
 ## Unreleased
+### Added
+- `status()` reports whether each task is `idle`, `running`, `stopped` or `disabled` (#17)
+
 ### Fixed
 - The horde no longer reports `stopped` until every hamster has stopped (#27)
 - `stop()` now settles as soon as the running task ends instead of polling, so it can no longer be skipped when nothing else keeps the process alive (#30)
