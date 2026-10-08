@@ -1,8 +1,20 @@
 var pipsqueak = require('..').callbackApi;
 var assert = require('node:assert');
-var { describe, it, afterEach } = require('node:test');
+var { describe, it, before, after, afterEach } = require('node:test');
 
 describe('Callback API', () => {
+  // pipsqueak unrefs all of its timers, so a stop that is waiting for a
+  // running task to finish only completes if something else keeps the event
+  // loop alive. Mocha's per-test timeout timer used to do that implicitly.
+  // See https://github.com/cressie176/pipsqueak/issues/30
+  var keepAlive;
+  before(() => {
+    keepAlive = setInterval(() => {}, 1000);
+  });
+  after(() => {
+    clearInterval(keepAlive);
+  });
+
   var p;
   var executions = 0;
   var task = (_ctx, cb) => {
