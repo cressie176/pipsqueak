@@ -1,28 +1,25 @@
 var pipsqueak = require('..').promiseApi;
-var assert = require('assert');
+var assert = require('node:assert');
+var { describe, it, afterEach } = require('node:test');
 
-describe('Promise API', function() {
-
+describe('Promise API', () => {
   var p;
   var executions = 0;
-  var factory = function() {
-    return new Promise(function(resolve, reject) {
+  var factory = () =>
+    new Promise((resolve, _reject) => {
       resolve(++executions);
     });
-  };
-  var boom = function() {
-    return new Promise(function(resolve, reject) {
+  var boom = () =>
+    new Promise((_resolve, reject) => {
       reject(new Error('You have idea face!'));
     });
-  };
-  var slow = function() {
-    return new Promise(function(resolve, reject) {
+  var slow = () =>
+    new Promise((resolve, _reject) => {
       executions++;
       setTimeout(resolve, 300);
     });
-  };
 
-  afterEach(function(done) {
+  afterEach((_t, done) => {
     executions = 0;
     if (p) {
       p.stop().then(done).catch(done);
@@ -31,15 +28,20 @@ describe('Promise API', function() {
     }
   });
 
-  it('should pass context to the task', function(done) {
+  it('should pass context to the task', (_t, done) => {
     var contexts = [];
-    var factory = (ctx) => new Promise(function(resolve, reject) {
-      contexts.push(ctx);
-      resolve();
-    });
-    p = pipsqueak({ name: 'awesome', factory: factory, interval: '100ms', }).start();
+    var factory = (ctx) =>
+      new Promise((resolve, _reject) => {
+        contexts.push(ctx);
+        resolve();
+      });
+    p = pipsqueak({
+      name: 'awesome',
+      factory: factory,
+      interval: '100ms',
+    }).start();
 
-    setTimeout(function() {
+    setTimeout(() => {
       assert.equal(contexts.length, 3);
 
       assert.equal(contexts[0].name, 'awesome');
@@ -55,50 +57,62 @@ describe('Promise API', function() {
     }, 250);
   });
 
-  it('should run the task at the specified interval', function(done) {
-    p = pipsqueak({ factory: factory, interval: '100ms', }).start();
-    setTimeout(function() {
+  it('should run the task at the specified interval', (_t, done) => {
+    p = pipsqueak({ factory: factory, interval: '100ms' }).start();
+    setTimeout(() => {
       assert.equal(executions, 3);
       done();
     }, 250);
   });
 
-  it('should start the task after the specified delay', function(done) {
-    p = pipsqueak({ factory: factory, interval: '100ms', delay: '100ms', }).start();
-    setTimeout(function() {
+  it('should start the task after the specified delay', (_t, done) => {
+    p = pipsqueak({
+      factory: factory,
+      interval: '100ms',
+      delay: '100ms',
+    }).start();
+    setTimeout(() => {
       assert.equal(executions, 2);
       done();
     }, 250);
   });
 
-  it('should support object durations', function(done) {
-    p = pipsqueak({ factory: factory, interval: { min: 100, max: 100, }, delay: { min: 100, max: 100, },}).start();
-    setTimeout(function() {
+  it('should support object durations', (_t, done) => {
+    p = pipsqueak({
+      factory: factory,
+      interval: { min: 100, max: 100 },
+      delay: { min: 100, max: 100 },
+    }).start();
+    setTimeout(() => {
       assert.equal(executions, 2);
       done();
     }, 250);
   });
 
-  it('should ignore disabled tasks', function(done) {
-    p = pipsqueak({ factory: factory, disabled: true, interval: '100ms', }).start();
-    setTimeout(function() {
+  it('should ignore disabled tasks', (_t, done) => {
+    p = pipsqueak({
+      factory: factory,
+      disabled: true,
+      interval: '100ms',
+    }).start();
+    setTimeout(() => {
       assert.equal(executions, 0);
       done();
     }, 250);
   });
 
-  it('should emit begin and end events', function(done) {
+  it('should emit begin and end events', (_t, done) => {
     var events = [];
-    var handler = function(event) {
+    var handler = (event) => {
       events.push(event);
     };
-    p = pipsqueak({ name: 'awesome', factory: factory, interval: '100ms', })
+    p = pipsqueak({ name: 'awesome', factory: factory, interval: '100ms' })
       .on('begin', handler)
       .on('error', handler)
       .on('end', handler)
       .start();
 
-    setTimeout(function() {
+    setTimeout(() => {
       assert.equal(events.length, 6);
       assert.equal(events[0].name, 'awesome');
       assert.equal(events[1].name, 'awesome');
@@ -117,18 +131,18 @@ describe('Promise API', function() {
     }, 250);
   });
 
-  it('should emit error events', function(done) {
+  it('should emit error events', (_t, done) => {
     var events = [];
-    var handler = function(event) {
+    var handler = (event) => {
       events.push(event);
     };
-    p = pipsqueak({ name: 'awesome', factory: boom, interval: '100ms', })
+    p = pipsqueak({ name: 'awesome', factory: boom, interval: '100ms' })
       .on('begin', handler)
       .on('error', handler)
       .on('end', handler)
       .start();
 
-    setTimeout(function() {
+    setTimeout(() => {
       assert.equal(events.length, 9);
       assert.equal(events[0].name, 'awesome');
       assert.equal(events[0].iteration, 0);
@@ -141,32 +155,48 @@ describe('Promise API', function() {
     }, 250);
   });
 
-  it('should stop', function(done) {
-    p = pipsqueak({ factory: factory, interval: '100ms', delay: '50ms', }).start();
-    setTimeout(function() {
-      p.stop().then(function() {
-        p = null;
-        done();
-      }).catch(done);
+  it('should stop', (_t, done) => {
+    p = pipsqueak({
+      factory: factory,
+      interval: '100ms',
+      delay: '50ms',
+    }).start();
+    setTimeout(() => {
+      p.stop()
+        .then(() => {
+          p = null;
+          done();
+        })
+        .catch(done);
     }, 100);
   });
 
-  it('should wait for tasks to stop', function(done) {
-    p = pipsqueak({ factory: slow, interval: '100ms',}).start();
-    setTimeout(function() {
-      p.stop().then(function() {
-        assert.equal(executions, 1);
-        p = null;
-        done();
-      }).catch(done);
+  it('should wait for tasks to stop', (_t, done) => {
+    p = pipsqueak({ factory: slow, interval: '100ms' }).start();
+    setTimeout(() => {
+      p.stop()
+        .then(() => {
+          assert.equal(executions, 1);
+          p = null;
+          done();
+        })
+        .catch(done);
     });
   });
 
-  it('should timeout waiting for tasks to stop', function(done) {
-    p = pipsqueak({ name: 'awesome', factory: slow, interval: '100ms', timeout: '200ms', }).start();
-    setTimeout(function() {
-      p.stop().catch(function(err) {
-        assert.equal(err.message, 'Timedout while waiting for awesome task to stop');
+  it('should timeout waiting for tasks to stop', (_t, done) => {
+    p = pipsqueak({
+      name: 'awesome',
+      factory: slow,
+      interval: '100ms',
+      timeout: '200ms',
+    }).start();
+    setTimeout(() => {
+      p.stop().catch((err) => {
+        assert.equal(
+          err.message,
+          'Timedout while waiting for awesome task to stop',
+        );
         assert.equal(executions, 1);
         p = null;
         done();
@@ -174,64 +204,64 @@ describe('Promise API', function() {
     });
   });
 
-  it('should start a hamster horde', function(done) {
+  it('should start a hamster horde', (_t, done) => {
     p = pipsqueak([
-      { factory: factory, interval: '100ms', },
-      { factory: factory, interval: '50ms', },
+      { factory: factory, interval: '100ms' },
+      { factory: factory, interval: '50ms' },
     ]).start();
-    setTimeout(function() {
+    setTimeout(() => {
       assert.equal(executions, 8);
       done();
     }, 250);
   });
 
-  it('should poke a hamster horde', function(done) {
+  it('should poke a hamster horde', (_t, done) => {
     p = pipsqueak([
-      { factory: factory, interval: '100ms', },
-      { factory: factory, interval: '50ms', },
+      { factory: factory, interval: '100ms' },
+      { factory: factory, interval: '50ms' },
     ]).poke();
-    setTimeout(function() {
+    setTimeout(() => {
       assert.equal(executions, 2);
       done();
     }, 250);
   });
 
-  it('should poke a subset of a hamster horde', function(done) {
+  it('should poke a subset of a hamster horde', (_t, done) => {
     p = pipsqueak([
-      { name: 'rod', factory: factory, interval: '50ms', },
-      { name: 'jane', factory: factory, interval: '50ms', },
-      { name: 'freddy', factory: factory, interval: '50ms', },
-    ]).poke(['rod', 'jane',]);
-    setTimeout(function() {
+      { name: 'rod', factory: factory, interval: '50ms' },
+      { name: 'jane', factory: factory, interval: '50ms' },
+      { name: 'freddy', factory: factory, interval: '50ms' },
+    ]).poke(['rod', 'jane']);
+    setTimeout(() => {
       assert.equal(executions, 2);
       done();
     }, 250);
   });
 
-  it('should poke a single hamster in a hamster horde', function(done) {
+  it('should poke a single hamster in a hamster horde', (_t, done) => {
     p = pipsqueak([
-      { name: 'rod', factory: factory, interval: '50ms', },
-      { name: 'jane', factory: factory, interval: '50ms', },
-      { name: 'freddy', factory: factory, interval: '50ms', },
+      { name: 'rod', factory: factory, interval: '50ms' },
+      { name: 'jane', factory: factory, interval: '50ms' },
+      { name: 'freddy', factory: factory, interval: '50ms' },
     ]).poke('rod');
-    setTimeout(function() {
+    setTimeout(() => {
       assert.equal(executions, 1);
       done();
     }, 250);
   });
 
-  it('should resume existing schedule after being poked', function(done) {
+  it('should resume existing schedule after being poked', (_t, done) => {
     p = pipsqueak([
-      { name: 'rod', factory: factory, interval: '100ms', },
-      { name: 'jane', factory: factory, interval: '100ms', },
-      { name: 'freddy', factory: factory, interval: '100ms', },
+      { name: 'rod', factory: factory, interval: '100ms' },
+      { name: 'jane', factory: factory, interval: '100ms' },
+      { name: 'freddy', factory: factory, interval: '100ms' },
     ]).start();
-    setTimeout(function() {
+    setTimeout(() => {
       assert.equal(executions, 3);
       p.poke('rod');
-      setTimeout(function() {
+      setTimeout(() => {
         assert.equal(executions, 4);
-        setTimeout(function() {
+        setTimeout(() => {
           assert.equal(executions, 6);
           done();
         }, 50);
@@ -239,47 +269,44 @@ describe('Promise API', function() {
     }, 50);
   });
 
-  it('should not poke disabled tasks', function(done) {
+  it('should not poke disabled tasks', (_t, done) => {
     p = pipsqueak([
-      { factory: factory, interval: '50ms', disabled: true, },
+      { factory: factory, interval: '50ms', disabled: true },
     ]).poke();
-    setTimeout(function() {
+    setTimeout(() => {
       assert.equal(executions, 0);
       done();
     }, 100);
   });
 
-  it('should poke disabled tasks with force parameter', function(done) {
+  it('should poke disabled tasks with force parameter', (_t, done) => {
     p = pipsqueak([
-      { factory: factory, interval: '50ms', disabled: true, },
+      { factory: factory, interval: '50ms', disabled: true },
     ]).poke(undefined, true);
-    setTimeout(function() {
+    setTimeout(() => {
       assert.equal(executions, 1);
       done();
     }, 100);
   });
 
-  it('should not poke stopped tasks', function(done) {
-    p = pipsqueak([
-      { factory: factory, interval: '50ms', },
-    ]);
-    p.stop().then(function() {
+  it('should not poke stopped tasks', (_t, done) => {
+    p = pipsqueak([{ factory: factory, interval: '50ms' }]);
+    p.stop().then(() => {
       p.poke();
-      setTimeout(function() {
+      setTimeout(() => {
         assert.equal(executions, 0);
         done();
       }, 100);
     });
   });
 
-  it('should not poke running tasks', function(done) {
-    p = pipsqueak([
-      { factory: slow, interval: '50ms', },
-    ]).start().poke();
-    setTimeout(function() {
+  it('should not poke running tasks', (_t, done) => {
+    p = pipsqueak([{ factory: slow, interval: '50ms' }])
+      .start()
+      .poke();
+    setTimeout(() => {
       assert.equal(executions, 1);
       done();
     }, 100);
   });
-
 });
