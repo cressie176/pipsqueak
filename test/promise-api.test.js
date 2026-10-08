@@ -196,6 +196,30 @@ describe('Promise API', () => {
     });
   });
 
+  it('should wait for every hamster in a horde to stop', (_t, done) => {
+    var finished = false;
+    var slower = () =>
+      new Promise((resolve) => {
+        setTimeout(() => {
+          finished = true;
+          resolve();
+        }, 250);
+      });
+    p = pipsqueak([
+      { name: 'idle', factory: factory, interval: '1s', delay: '1s' },
+      { name: 'busy', factory: slower, interval: '1s' },
+    ]).start();
+    setTimeout(() => {
+      p.stop()
+        .then(() => {
+          assert.ok(finished, 'stopped before the busy hamster finished');
+          p = null;
+          done();
+        })
+        .catch(done);
+    }, 50);
+  });
+
   it('should timeout waiting for tasks to stop', (_t, done) => {
     p = pipsqueak({
       name: 'awesome',

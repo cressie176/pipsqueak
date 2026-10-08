@@ -46,10 +46,7 @@ module.exports = function hamsters(run, optionsList) {
   }
 
   var onStopped = (_event) => {
-    // biome-ignore lint/suspicious/useIterableCallbackReturn: pre-existing bug, see https://github.com/cressie176/pipsqueak/issues/27
-    var running = horde.find((hamster) => {
-      hamster.status() !== 'stopped';
-    });
+    var running = horde.find((hamster) => hamster.status() !== 'stopped');
     if (!running) {
       api.removeListener('_stopped', onStopped);
       api.emit('stopped');

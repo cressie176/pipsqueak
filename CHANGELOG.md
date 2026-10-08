@@ -1,6 +1,9 @@
 # Change Log
 
 ## Unreleased
+### Fixed
+- The horde no longer reports `stopped` until every hamster has stopped (#27)
+
 ### Changed
 - **Breaking:** Node 22.12 or later is now required
 - Replaced mocha and nyc with the built-in Node test runner and coverage reporter

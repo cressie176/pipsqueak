@@ -181,6 +181,27 @@ describe('Callback API', () => {
     });
   });
 
+  it('should wait for every hamster in a horde to stop', (_t, done) => {
+    var finished = false;
+    var slower = (_ctx, cb) => {
+      setTimeout(() => {
+        finished = true;
+        cb();
+      }, 250);
+    };
+    p = pipsqueak([
+      { name: 'idle', task: task, interval: '1s', delay: '1s' },
+      { name: 'busy', task: slower, interval: '1s' },
+    ]).start();
+    setTimeout(() => {
+      p.stop((err) => {
+        assert.ok(finished, 'stopped before the busy hamster finished');
+        p = null;
+        done(err);
+      });
+    }, 50);
+  });
+
   it('should timeout waiting for tasks to stop', (_t, done) => {
     p = pipsqueak({
       name: 'awesome',
