@@ -91,25 +91,24 @@ function hamster(hordeEmitter, run, options) {
       return emitter.emit('_stopped', { name: name, iteration: iteration });
     }
 
-    function checkStopped() {
-      if (running) return false;
+    function onEnd() {
       debug('%s has stopped', name);
-      clearInterval(checkStoppedId);
-      clearTimeout(checkTimeoutId);
-      emitter.emit('_stopped', { name: name, iteration: iteration });
-      return true;
+      clearTimeout(timeoutId);
+      process.nextTick(() => {
+        emitter.emit('_stopped', { name: name, iteration: iteration });
+      });
     }
 
-    function checkTimeout() {
+    function onTimeout() {
       debug('%s timedout', name);
-      clearInterval(checkStoppedId);
+      emitter.removeListener('end', onEnd);
       emitter.emit('_timeout', { name: name, timestamp: Date() });
     }
 
-    var checkStoppedId = setInterval(checkStopped, 100).unref();
+    emitter.once('end', onEnd);
 
     if (timeout === undefined) return;
-    var checkTimeoutId = setTimeout(checkTimeout, timeout).unref();
+    var timeoutId = setTimeout(onTimeout, timeout).unref();
   }
 
   function schedule(delay) {

@@ -1,20 +1,9 @@
 var pipsqueak = require('..').callbackApi;
 var assert = require('node:assert');
-var { describe, it, before, after, afterEach } = require('node:test');
+var { describe, it, afterEach } = require('node:test');
+var { execFile } = require('node:child_process');
 
 describe('Callback API', () => {
-  // pipsqueak unrefs all of its timers, so a stop that is waiting for a
-  // running task to finish only completes if something else keeps the event
-  // loop alive. Mocha's per-test timeout timer used to do that implicitly.
-  // See https://github.com/cressie176/pipsqueak/issues/30
-  var keepAlive;
-  before(() => {
-    keepAlive = setInterval(() => {}, 1000);
-  });
-  after(() => {
-    clearInterval(keepAlive);
-  });
-
   var p;
   var executions = 0;
   var task = (_ctx, cb) => {
@@ -27,7 +16,7 @@ describe('Callback API', () => {
   };
   var slow = (_ctx, cb) => {
     executions++;
-    setTimeout(cb, 300);
+    setTimeout(cb, 250);
   };
 
   afterEach((_t, done) => {
@@ -196,6 +185,35 @@ describe('Callback API', () => {
     setTimeout(() => {
       p.stop((err) => {
         assert.ok(finished, 'stopped before the busy hamster finished');
+        p = null;
+        done(err);
+      });
+    }, 50);
+  });
+
+  it('should settle stop without anything else keeping the process alive', (_t, done) => {
+    var script = [
+      `var pipsqueak = require(${JSON.stringify(require.resolve('..'))}).callbackApi;`,
+      'var slow = (_ctx, cb) => setTimeout(cb, 250);',
+      "var p = pipsqueak({ task: slow, interval: '100ms' }).start();",
+      "setTimeout(() => p.stop(() => console.log('stopped')));",
+    ].join('\n');
+    execFile(process.execPath, ['-e', script], (err, stdout) => {
+      if (err) return done(err);
+      assert.equal(stdout.trim(), 'stopped');
+      done();
+    });
+  });
+
+  it('should emit end before stopped', (_t, done) => {
+    var events = [];
+    p = pipsqueak({ task: slow, interval: '1s' })
+      .on('end', () => events.push('end'))
+      .start();
+    setTimeout(() => {
+      p.stop((err) => {
+        events.push('stopped');
+        assert.deepEqual(events, ['end', 'stopped']);
         p = null;
         done(err);
       });
