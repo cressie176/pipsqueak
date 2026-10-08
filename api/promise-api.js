@@ -1,11 +1,10 @@
-var debug = require('debug')('pipsqueak');
-var abstractApi = require('./abstract-api');
-var format = require('node:util').format;
+const debug = require('debug')('pipsqueak');
+const abstractApi = require('./abstract-api');
 
 module.exports = function pipsqueak(options) {
   function run(ctx, emitter, factory, reschedule) {
     debug('%s/%d is running', ctx.name, ctx.iteration);
-    var result;
+    let result;
     emitter.emit('begin', {
       name: ctx.name,
       run: ctx.run,
@@ -33,14 +32,14 @@ module.exports = function pipsqueak(options) {
           run: ctx.run,
           iteration: ctx.iteration,
           timestamp: Date.now(),
-          result: result,
+          result,
         });
         reschedule();
       });
   }
 
-  var api = abstractApi(run, options);
-  var wrapped = api.stop;
+  const api = abstractApi(run, options);
+  const wrapped = api.stop;
   api.stop = () =>
     new Promise((resolve, reject) => {
       api
@@ -49,9 +48,7 @@ module.exports = function pipsqueak(options) {
         })
         .once('timeout', (event) => {
           reject(
-            new Error(
-              format('Timedout while waiting for %s task to stop', event.name),
-            ),
+            new Error(`Timedout while waiting for ${event.name} task to stop`),
           );
         });
       wrapped();
