@@ -1,0 +1,15 @@
+pre-commit:
+  jobs:
+    - name: lint
+      run: npm run lint
+    - name: test
+      run: npm test
+    - name: examples
+      run: npm run examples
+
+pre-push:
+  jobs:
+    - name: lint
+      run: npm run lint
+    - name: test
+      run: npm test

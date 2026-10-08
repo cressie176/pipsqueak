@@ -5,11 +5,11 @@
   "main": "index.js",
   "scripts": {
     "coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-exclude=\"test/**\" --test-coverage-exclude=\"examples/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
-    "codeclimate": "(test -e .codeclimate && npm run coverage && source .codeclimate && codeclimate-test-reporter < coverage/lcov.info) || echo skipping codeclimate",
     "lint": "biome check .",
     "test": "node --test",
     "examples": "node examples/callback-example && node examples/promise-example && node examples/synchronous-example",
-    "lint:fix": "biome check --write ."
+    "lint:fix": "biome check --write .",
+    "prepare": "lefthook install"
   },
   "keywords": [
     "task",
@@ -28,8 +28,8 @@
   "author": "Stephen Cresswell",
   "license": "ISC",
   "devDependencies": {
-    "husky": "^4.2.5",
-    "@biomejs/biome": "^2.5.15"
+    "@biomejs/biome": "^2.5.15",
+    "lefthook": "^2.2.1"
   },
   "dependencies": {
     "debug": "^4.4.3",
@@ -47,12 +47,6 @@
     "url": "https://github.com/cressie176/pipsqueak/issues"
   },
   "homepage": "https://cressie176.github.io/pipsqueak/",
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint && npm run test && npm run examples",
-      "pre-push": "npm run lint && npm run codeclimate"
-    }
-  },
   "files": [
     "index.js",
     "api",
