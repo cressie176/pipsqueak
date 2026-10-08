@@ -1,6 +1,6 @@
 var debug = require('debug')('pipsqueak');
 var randomUUID = require('node:crypto').randomUUID;
-var parse = require('parse-duration');
+var parse = require('parse-duration').default;
 var EventEmitter = require('node:events').EventEmitter;
 var forward = require('forward-events');
 

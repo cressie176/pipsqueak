@@ -34,10 +34,10 @@
   "dependencies": {
     "debug": "^4.4.3",
     "forward-events": "0.0.1",
-    "parse-duration": "^1.1.2"
+    "parse-duration": "^2.1.9"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.12"
   },
   "repository": {
     "type": "git",

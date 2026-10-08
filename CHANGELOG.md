@@ -2,7 +2,7 @@
 
 ## Unreleased
 ### Changed
-- **Breaking:** Node 22 or later is now required
+- **Breaking:** Node 22.12 or later is now required
 - Replaced mocha and nyc with the built-in Node test runner and coverage reporter
 - Replaced eslint with Biome
 - Replaced husky with lefthook
