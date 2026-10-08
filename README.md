@@ -152,6 +152,15 @@ If pipsqueak is stopped, or the task was running or disabled, poking it will hav
 If pipsqueak was not started, the task will be run once, but not scheduled.
 If pipsqueak was started, the next schedule will be cancelled, the task will be run once and rescheduled.
 
+### Checking Status
+You can ask whether a task is currently running. Each task reports one of `idle`, `running`, `stopped` or `disabled`.
+```js
+const p = pipsqueak(tasks).start();
+p.status();        // { task1: 'running', task2: 'idle' }
+p.status('task1'); // 'running'
+```
+Disabled tasks report `disabled` even after `stop`, and tasks that have never been given a name are keyed by their generated name.
+
 ### Disabling Tasks
 If you want to configure, but disable a specific tasks (maybe because it should only run under specific conditions, set `disabled` to true, e.g.
 ```javascript

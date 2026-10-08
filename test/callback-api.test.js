@@ -240,6 +240,38 @@ describe('Callback API', () => {
     });
   });
 
+  it('should report the status of each hamster', (_t, done) => {
+    p = pipsqueak([
+      { name: 'busy', task: slow, interval: '1s' },
+      { name: 'lazy', task, interval: '1s', delay: '1s' },
+      { name: 'off', task, interval: '1s', disabled: true },
+    ]);
+    assert.deepEqual(p.status(), {
+      busy: 'idle',
+      lazy: 'idle',
+      off: 'disabled',
+    });
+    p.start();
+    setTimeout(() => {
+      assert.deepEqual(p.status(), {
+        busy: 'running',
+        lazy: 'idle',
+        off: 'disabled',
+      });
+      assert.equal(p.status('busy'), 'running');
+      assert.equal(p.status('nope'), undefined);
+      p.stop((err) => {
+        assert.deepEqual(p.status(), {
+          busy: 'stopped',
+          lazy: 'stopped',
+          off: 'disabled',
+        });
+        p = null;
+        done(err);
+      });
+    }, 50);
+  });
+
   it('should start a hamster horde', (_t, done) => {
     p = pipsqueak([
       { task, interval: '100ms' },
