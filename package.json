@@ -6,9 +6,10 @@
   "scripts": {
     "coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-coverage-exclude=\"test/**\" --test-coverage-exclude=\"examples/**\" --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
     "codeclimate": "(test -e .codeclimate && npm run coverage && source .codeclimate && codeclimate-test-reporter < coverage/lcov.info) || echo skipping codeclimate",
-    "lint": "eslint .",
+    "lint": "biome check .",
     "test": "node --test",
-    "examples": "node examples/callback-example && node examples/promise-example && node examples/synchronous-example"
+    "examples": "node examples/callback-example && node examples/promise-example && node examples/synchronous-example",
+    "lint:fix": "biome check --write ."
   },
   "keywords": [
     "task",
@@ -27,10 +28,8 @@
   "author": "Stephen Cresswell",
   "license": "ISC",
   "devDependencies": {
-    "eslint": "^7.5.0",
-    "eslint-config-imperative": "^3.0.0",
-    "eslint-plugin-imperative": "^3.0.0",
-    "husky": "^4.2.5"
+    "husky": "^4.2.5",
+    "@biomejs/biome": "^2.5.15"
   },
   "dependencies": {
     "debug": "^4.4.3",

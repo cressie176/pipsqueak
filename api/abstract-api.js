@@ -1,22 +1,21 @@
 var debug = require('debug')('pipsqueak');
 var randomUUID = require('node:crypto').randomUUID;
 var parse = require('parse-duration');
-var EventEmitter = require('events').EventEmitter;
+var EventEmitter = require('node:events').EventEmitter;
 var forward = require('forward-events');
 
 module.exports = function hamsters(run, optionsList) {
-
-  var api = { start: start, stop: stop, poke: poke, };
+  var api = { start: start, stop: stop, poke: poke };
 
   EventEmitter.call(api);
   Object.assign(api, EventEmitter.prototype);
 
-  var horde = [].concat(optionsList).map(function(options) {
-    return hamster(api, run, options);
-  });
+  var horde = []
+    .concat(optionsList)
+    .map((options) => hamster(api, run, options));
 
   function start() {
-    horde.forEach(function(hamster) {
+    horde.forEach((hamster) => {
       hamster.start();
     });
     return api;
@@ -25,29 +24,30 @@ module.exports = function hamsters(run, optionsList) {
   function stop() {
     api.on('_stopped', onStopped);
     api.once('_timeout', onTimeout);
-    horde.forEach(function(hamster) {
+    horde.forEach((hamster) => {
       hamster.stop();
     });
   }
 
   function poke(namesParam, forceParam) {
-    const [names, force,] = getPokeOptions(namesParam, forceParam);
-    horde.filter(byNames(names)).forEach(function(hamster) {
+    const [names, force] = getPokeOptions(namesParam, forceParam);
+    horde.filter(byNames(names)).forEach((hamster) => {
       hamster.poke(force);
     });
     return api;
   }
 
   function byNames(names) {
-    return function(hamster) {
+    return (hamster) => {
       if (!names) return true;
       if ([].concat(names).includes(hamster.name)) return true;
       return false;
     };
   }
 
-  var onStopped = function(event) {
-    var running = horde.find(function(hamster) {
+  var onStopped = (_event) => {
+    // biome-ignore lint/suspicious/useIterableCallbackReturn: pre-existing bug, see https://github.com/cressie176/pipsqueak/issues/27
+    var running = horde.find((hamster) => {
       hamster.status() !== 'stopped';
     });
     if (!running) {
@@ -56,22 +56,18 @@ module.exports = function hamsters(run, optionsList) {
     }
   };
 
-  var onTimeout = function(event) {
+  var onTimeout = (event) => {
     api.removeListener('_stopped', onStopped);
     api.emit('timeout', event);
   };
 
   return api;
-
 };
 
 function hamster(hordeEmitter, run, options) {
-
   var name = options.name || randomUUID();
   var enabled = !options.disabled;
-  var factory = options.factory || function(meta) {
-    return options.task.bind(null, meta);
-  };
+  var factory = options.factory || ((meta) => options.task.bind(null, meta));
   var interval = getDuration(options.interval, undefined);
   var delay = getDuration(options.delay, 0);
   var timeout = getDuration(options.timeout, undefined);
@@ -95,7 +91,7 @@ function hamster(hordeEmitter, run, options) {
 
     if (!running) {
       debug('%s has stopped', name);
-      return emitter.emit('_stopped', { name: name, iteration: iteration, });
+      return emitter.emit('_stopped', { name: name, iteration: iteration });
     }
 
     function checkStopped() {
@@ -103,14 +99,14 @@ function hamster(hordeEmitter, run, options) {
       debug('%s has stopped', name);
       clearInterval(checkStoppedId);
       clearTimeout(checkTimeoutId);
-      emitter.emit('_stopped', { name: name, iteration: iteration, });
+      emitter.emit('_stopped', { name: name, iteration: iteration });
       return true;
     }
 
     function checkTimeout() {
       debug('%s timedout', name);
       clearInterval(checkStoppedId);
-      emitter.emit('_timeout', { name: name, timestamp: Date(), });
+      emitter.emit('_timeout', { name: name, timestamp: Date() });
     }
 
     var checkStoppedId = setInterval(checkStopped, 100).unref();
@@ -122,16 +118,19 @@ function hamster(hordeEmitter, run, options) {
   function schedule(delay) {
     if (stopping) return;
     debug('%s is scheduled to run in %d milliseconds', name, delay);
-    var ctx = { name: name, run: randomUUID(), iteration: iteration++, };
+    var ctx = { name: name, run: randomUUID(), iteration: iteration++ };
     var reschedule = schedule.bind(null, interval);
-    next = setTimeout(run.bind(null, ctx, emitter, factory, reschedule), delay).unref();
+    next = setTimeout(
+      run.bind(null, ctx, emitter, factory, reschedule),
+      delay,
+    ).unref();
   }
 
   function poke(force) {
     if ((!enabled && !force) || stopping || running) return;
     debug('Poking %s', name);
-    var ctx = { name: name, run: randomUUID(), iteration: iteration++, };
-    var reschedule = next ? schedule.bind(null, interval) : function() {};
+    var ctx = { name: name, run: randomUUID(), iteration: iteration++ };
+    var reschedule = next ? schedule.bind(null, interval) : () => {};
     clearTimeout(next);
     run(ctx, emitter, factory, reschedule);
   }
@@ -140,11 +139,11 @@ function hamster(hordeEmitter, run, options) {
     return running ? 'running' : 'stopped';
   }
 
-  emitter.on('begin', function(event) {
+  emitter.on('begin', (_event) => {
     running = true;
   });
 
-  emitter.on('end', function(event) {
+  emitter.on('end', (_event) => {
     running = false;
   });
 
@@ -157,7 +156,7 @@ function hamster(hordeEmitter, run, options) {
       return name;
     },
   };
-};
+}
 
 function getMillis(duration) {
   return typeof duration === 'string' ? parse(duration) : duration;
@@ -167,14 +166,15 @@ function getDuration(duration, defaultValue) {
   if (duration === null || duration === undefined) return defaultValue;
   if (typeof duration === 'string') return parse(duration);
   if (typeof duration === 'object') {
-    var min = getMillis(duration.min) || 0;
-    var max = getMillis(duration.max);
+    const min = getMillis(duration.min) || 0;
+    const max = getMillis(duration.max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
   return duration;
 }
 
 function getPokeOptions(names, force) {
-  if (typeof names === 'boolean' && force === undefined) return [undefined, names,];
-  return [names, force,];
+  if (typeof names === 'boolean' && force === undefined)
+    return [undefined, names];
+  return [names, force];
 }
