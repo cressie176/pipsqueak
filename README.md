@@ -1,14 +1,12 @@
 # Pipsqueak
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/cressie176/pipsqueak.svg)](https://greenkeeper.io/)
 [![NPM version](https://img.shields.io/npm/v/pipsqueak.svg?style=flat-square)](https://www.npmjs.com/package/pipsqueak)
 [![NPM downloads](https://img.shields.io/npm/dm/pipsqueak.svg?style=flat-square)](https://www.npmjs.com/package/pipsqueak)
-[![Build Status](https://img.shields.io/travis/cressie176/pipsqueak/master.svg)](https://travis-ci.org/cressie176/pipsqueak)
-[![Code Climate](https://codeclimate.com/github/cressie176/pipsqueak/badges/gpa.svg)](https://codeclimate.com/github/cressie176/pipsqueak)
-[![Test Coverage](https://codeclimate.com/github/cressie176/pipsqueak/badges/coverage.svg)](https://codeclimate.com/github/cressie176/pipsqueak/coverage)
-[![Code Style](https://img.shields.io/badge/code%20style-imperative-brightgreen.svg)](https://github.com/cressie176/eslint-config-imperative)
-[![Dependency Status](https://david-dm.org/cressie176/pipsqueak.svg)](https://david-dm.org/cressie176/pipsqueak)
-[![devDependencies Status](https://david-dm.org/cressie176/pipsqueak/dev-status.svg)](https://david-dm.org/cressie176/pipsqueak?type=dev)
+[![Node version](https://img.shields.io/node/v/pipsqueak.svg?style=flat-square)](https://www.npmjs.com/package/pipsqueak)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/cressie176/pipsqueak/test.yml?branch=master&style=flat-square)](https://github.com/cressie176/pipsqueak/actions/workflows/test.yml)
+[![Code Coverage](https://img.shields.io/codecov/c/github/cressie176/pipsqueak/master.svg?style=flat-square)](https://codecov.io/gh/cressie176/pipsqueak)
+[![Code Style](https://img.shields.io/badge/code%20style-biome-60a5fa.svg?style=flat-square)](https://biomejs.dev/)
+[![License](https://img.shields.io/npm/l/pipsqueak.svg?style=flat-square)](https://www.npmjs.com/package/pipsqueak)
 
 Pipsqueak is an in memory interval based task scheduler, with support for promises, callbacks and synchronous functions. Pipsqueak is also the name of a Hamster. Hamsters like running in circles. A bit like an interval based task scheduler, but more cute.
 
