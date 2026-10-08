@@ -1,5 +1,5 @@
 var debug = require('debug')('pipsqueak');
-var uuid = require('uuid').v4;
+var randomUUID = require('node:crypto').randomUUID;
 var parse = require('parse-duration');
 var EventEmitter = require('events').EventEmitter;
 var forward = require('forward-events');
@@ -67,7 +67,7 @@ module.exports = function hamsters(run, optionsList) {
 
 function hamster(hordeEmitter, run, options) {
 
-  var name = options.name || uuid();
+  var name = options.name || randomUUID();
   var enabled = !options.disabled;
   var factory = options.factory || function(meta) {
     return options.task.bind(null, meta);
@@ -122,7 +122,7 @@ function hamster(hordeEmitter, run, options) {
   function schedule(delay) {
     if (stopping) return;
     debug('%s is scheduled to run in %d milliseconds', name, delay);
-    var ctx = { name: name, run: uuid(), iteration: iteration++, };
+    var ctx = { name: name, run: randomUUID(), iteration: iteration++, };
     var reschedule = schedule.bind(null, interval);
     next = setTimeout(run.bind(null, ctx, emitter, factory, reschedule), delay).unref();
   }
@@ -130,7 +130,7 @@ function hamster(hordeEmitter, run, options) {
   function poke(force) {
     if ((!enabled && !force) || stopping || running) return;
     debug('Poking %s', name);
-    var ctx = { name: name, run: uuid(), iteration: iteration++, };
+    var ctx = { name: name, run: randomUUID(), iteration: iteration++, };
     var reschedule = next ? schedule.bind(null, interval) : function() {};
     clearTimeout(next);
     run(ctx, emitter, factory, reschedule);

@@ -34,17 +34,13 @@
     "mocha": "^8.0.1",
     "nyc": "^15.1.0"
   },
-  "directories": {
-    "test": "test"
-  },
   "dependencies": {
-    "debug": "^4.1.1",
+    "debug": "^4.4.3",
     "forward-events": "0.0.1",
-    "parse-duration": "^0.4.2",
-    "uuid": "^8.0.0"
+    "parse-duration": "^1.1.2"
   },
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=22"
   },
   "repository": {
     "type": "git",
@@ -59,5 +55,10 @@
       "pre-commit": "npm run lint && npm run test && npm run examples",
       "pre-push": "npm run lint && npm run codeclimate"
     }
-  }
+  },
+  "files": [
+    "index.js",
+    "api",
+    "CHANGELOG.md"
+  ]
 }
