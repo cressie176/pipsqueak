@@ -10,7 +10,7 @@ console.log('---------------');
 
 const p = pipsqueak({
   name: 'example',
-  factory: factory,
+  factory,
   interval: '100ms',
   delay: '1s',
 })

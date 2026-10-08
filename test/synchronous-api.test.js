@@ -1,11 +1,11 @@
-var pipsqueak = require('..').synchronousApi;
-var assert = require('node:assert');
-var { describe, it, afterEach } = require('node:test');
+const pipsqueak = require('..').synchronousApi;
+const assert = require('node:assert');
+const { describe, it, afterEach } = require('node:test');
 
 describe('Synchronous API', () => {
-  var p;
-  var executions = 0;
-  var task = () => ++executions;
+  let p;
+  let executions = 0;
+  const task = () => ++executions;
 
   afterEach((_t, done) => {
     executions = 0;
@@ -19,11 +19,11 @@ describe('Synchronous API', () => {
   });
 
   it('should pass context to the task', (_t, done) => {
-    var contexts = [];
-    var task = (ctx) => {
+    const contexts = [];
+    const task = (ctx) => {
       contexts.push(ctx);
     };
-    p = pipsqueak({ name: 'awesome', task: task, interval: '100ms' }).start();
+    p = pipsqueak({ name: 'awesome', task, interval: '100ms' }).start();
 
     setTimeout(() => {
       assert.equal(contexts.length, 3);
@@ -42,7 +42,7 @@ describe('Synchronous API', () => {
   });
 
   it('should run the task at the specified interval', (_t, done) => {
-    p = pipsqueak({ task: task, interval: '100ms' }).start();
+    p = pipsqueak({ task, interval: '100ms' }).start();
     setTimeout(() => {
       assert.equal(executions, 3);
       done();
@@ -50,7 +50,7 @@ describe('Synchronous API', () => {
   });
 
   it('should start the task after the specified delay', (_t, done) => {
-    p = pipsqueak({ task: task, interval: '100ms', delay: '100ms' }).start();
+    p = pipsqueak({ task, interval: '100ms', delay: '100ms' }).start();
     setTimeout(() => {
       assert.equal(executions, 2);
       done();
@@ -59,7 +59,7 @@ describe('Synchronous API', () => {
 
   it('should support object durations', (_t, done) => {
     p = pipsqueak({
-      task: task,
+      task,
       interval: { min: 100, max: 100 },
       delay: { min: 100, max: 100 },
     }).start();
@@ -70,7 +70,7 @@ describe('Synchronous API', () => {
   });
 
   it('should ignore disabled tasks', (_t, done) => {
-    p = pipsqueak({ task: task, disabled: true, interval: '100ms' }).start();
+    p = pipsqueak({ task, disabled: true, interval: '100ms' }).start();
     setTimeout(() => {
       assert.equal(executions, 0);
       done();
@@ -78,11 +78,11 @@ describe('Synchronous API', () => {
   });
 
   it('should emit begin and end events', (_t, done) => {
-    var events = [];
-    var handler = (event) => {
+    const events = [];
+    const handler = (event) => {
       events.push(event);
     };
-    p = pipsqueak({ name: 'awesome', task: task, interval: '100ms' })
+    p = pipsqueak({ name: 'awesome', task, interval: '100ms' })
       .on('begin', handler)
       .on('error', handler)
       .on('end', handler)
@@ -108,11 +108,11 @@ describe('Synchronous API', () => {
   });
 
   it('should emit error events', (_t, done) => {
-    var boom = () => {
+    const boom = () => {
       throw new Error('You have idea face!');
     };
-    var events = [];
-    var handler = (event) => {
+    const events = [];
+    const handler = (event) => {
       events.push(event);
     };
 
@@ -136,7 +136,7 @@ describe('Synchronous API', () => {
   });
 
   it('should stop', (_t, done) => {
-    p = pipsqueak({ task: task, interval: '100ms', delay: '50ms' });
+    p = pipsqueak({ task, interval: '100ms', delay: '50ms' });
     p.once('stopped', () => {
       assert.equal(executions, 1);
       done();
@@ -146,8 +146,8 @@ describe('Synchronous API', () => {
 
   it('should start a hamster horde', (_t, done) => {
     p = pipsqueak([
-      { task: task, interval: '100ms' },
-      { task: task, interval: '50ms' },
+      { task, interval: '100ms' },
+      { task, interval: '50ms' },
     ]).start();
     setTimeout(() => {
       assert.equal(executions, 8);
@@ -157,8 +157,8 @@ describe('Synchronous API', () => {
 
   it('should poke a hamster horde', (_t, done) => {
     p = pipsqueak([
-      { task: task, interval: '100ms' },
-      { task: task, interval: '50ms' },
+      { task, interval: '100ms' },
+      { task, interval: '50ms' },
     ]).poke();
     setTimeout(() => {
       assert.equal(executions, 2);
@@ -168,9 +168,9 @@ describe('Synchronous API', () => {
 
   it('should poke a subset of a hamster horde', (_t, done) => {
     p = pipsqueak([
-      { name: 'rod', task: task, interval: '50ms' },
-      { name: 'jane', task: task, interval: '50ms' },
-      { name: 'freddy', task: task, interval: '50ms' },
+      { name: 'rod', task, interval: '50ms' },
+      { name: 'jane', task, interval: '50ms' },
+      { name: 'freddy', task, interval: '50ms' },
     ]).poke(['rod', 'jane']);
     setTimeout(() => {
       assert.equal(executions, 2);
@@ -180,9 +180,9 @@ describe('Synchronous API', () => {
 
   it('should poke a single hamster in a hamster horde', (_t, done) => {
     p = pipsqueak([
-      { name: 'rod', task: task, interval: '50ms' },
-      { name: 'jane', task: task, interval: '50ms' },
-      { name: 'freddy', task: task, interval: '50ms' },
+      { name: 'rod', task, interval: '50ms' },
+      { name: 'jane', task, interval: '50ms' },
+      { name: 'freddy', task, interval: '50ms' },
     ]).poke('rod');
     setTimeout(() => {
       assert.equal(executions, 1);
@@ -192,9 +192,9 @@ describe('Synchronous API', () => {
 
   it('should resume existing schedule after being poked', (_t, done) => {
     p = pipsqueak([
-      { name: 'rod', task: task, interval: '100ms' },
-      { name: 'jane', task: task, interval: '100ms' },
-      { name: 'freddy', task: task, interval: '100ms' },
+      { name: 'rod', task, interval: '100ms' },
+      { name: 'jane', task, interval: '100ms' },
+      { name: 'freddy', task, interval: '100ms' },
     ]).start();
     setTimeout(() => {
       assert.equal(executions, 3);
@@ -210,7 +210,7 @@ describe('Synchronous API', () => {
   });
 
   it('should not poke disabled tasks', (_t, done) => {
-    p = pipsqueak([{ task: task, interval: '50ms', disabled: true }]).poke();
+    p = pipsqueak([{ task, interval: '50ms', disabled: true }]).poke();
     setTimeout(() => {
       assert.equal(executions, 0);
       done();
@@ -218,9 +218,7 @@ describe('Synchronous API', () => {
   });
 
   it('should poke disabled tasks with force parameter', (_t, done) => {
-    p = pipsqueak([{ task: task, interval: '50ms', disabled: true }]).poke(
-      true,
-    );
+    p = pipsqueak([{ task, interval: '50ms', disabled: true }]).poke(true);
     setTimeout(() => {
       assert.equal(executions, 1);
       done();
@@ -228,7 +226,7 @@ describe('Synchronous API', () => {
   });
 
   it('should not poke stopped tasks', (_t, done) => {
-    p = pipsqueak([{ task: task, interval: '50ms' }]);
+    p = pipsqueak([{ task, interval: '50ms' }]);
     p.stop();
     p.poke();
     setTimeout(() => {

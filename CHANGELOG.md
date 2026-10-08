@@ -7,6 +7,7 @@
 
 ### Changed
 - **Breaking:** Node 22.12 or later is now required
+- Source modernised to ES2015+: `const`/`let`, arrow functions, destructuring, shorthand properties and template literals, enforced by Biome
 - Replaced mocha and nyc with the built-in Node test runner and coverage reporter
 - Replaced eslint with Biome
 - Replaced husky with lefthook

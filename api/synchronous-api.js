@@ -1,10 +1,10 @@
-var debug = require('debug')('pipsqueak');
-var abstractApi = require('./abstract-api');
+const debug = require('debug')('pipsqueak');
+const abstractApi = require('./abstract-api');
 
 module.exports = function pipsqueak(options) {
   function run(ctx, emitter, factory, reschedule) {
     debug('%s/%d is running', ctx.name, ctx.iteration);
-    var result;
+    let result;
     emitter.emit('begin', {
       name: ctx.name,
       run: ctx.run,
@@ -29,7 +29,7 @@ module.exports = function pipsqueak(options) {
         run: ctx.run,
         iteration: ctx.iteration,
         timestamp: Date.now(),
-        result: result,
+        result,
       });
       reschedule();
     }

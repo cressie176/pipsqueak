@@ -1,20 +1,20 @@
-var pipsqueak = require('..').callbackApi;
-var assert = require('node:assert');
-var { describe, it, afterEach } = require('node:test');
-var { execFile } = require('node:child_process');
+const pipsqueak = require('..').callbackApi;
+const assert = require('node:assert');
+const { describe, it, afterEach } = require('node:test');
+const { execFile } = require('node:child_process');
 
 describe('Callback API', () => {
-  var p;
-  var executions = 0;
-  var task = (_ctx, cb) => {
+  let p;
+  let executions = 0;
+  const task = (_ctx, cb) => {
     cb(null, ++executions);
   };
-  var boom = (_ctx, cb) => {
+  const boom = (_ctx, cb) => {
     setImmediate(() => {
       cb(new Error('You have idea face!'));
     });
   };
-  var slow = (_ctx, cb) => {
+  const slow = (_ctx, cb) => {
     executions++;
     setTimeout(cb, 250);
   };
@@ -32,12 +32,12 @@ describe('Callback API', () => {
   });
 
   it('should pass context to the task', (_t, done) => {
-    var contexts = [];
-    var task = (ctx, cb) => {
+    const contexts = [];
+    const task = (ctx, cb) => {
       contexts.push(ctx);
       cb();
     };
-    p = pipsqueak({ name: 'awesome', task: task, interval: '100ms' }).start();
+    p = pipsqueak({ name: 'awesome', task, interval: '100ms' }).start();
 
     setTimeout(() => {
       assert.equal(contexts.length, 3);
@@ -56,7 +56,7 @@ describe('Callback API', () => {
   });
 
   it('should run the task at the specified interval', (_t, done) => {
-    p = pipsqueak({ task: task, interval: '100ms' }).start();
+    p = pipsqueak({ task, interval: '100ms' }).start();
     setTimeout(() => {
       assert.equal(executions, 3);
       done();
@@ -64,7 +64,7 @@ describe('Callback API', () => {
   });
 
   it('should start the task after the specified delay', (_t, done) => {
-    p = pipsqueak({ task: task, interval: '100ms', delay: '100ms' }).start();
+    p = pipsqueak({ task, interval: '100ms', delay: '100ms' }).start();
     setTimeout(() => {
       assert.equal(executions, 2);
       done();
@@ -73,7 +73,7 @@ describe('Callback API', () => {
 
   it('should support object durations', (_t, done) => {
     p = pipsqueak({
-      task: task,
+      task,
       interval: { min: 100, max: 100 },
       delay: { min: 100, max: 100 },
     }).start();
@@ -84,7 +84,7 @@ describe('Callback API', () => {
   });
 
   it('should ignore disabled tasks', (_t, done) => {
-    p = pipsqueak({ task: task, disabled: true, interval: '100ms' }).start();
+    p = pipsqueak({ task, disabled: true, interval: '100ms' }).start();
     setTimeout(() => {
       assert.equal(executions, 0);
       done();
@@ -92,11 +92,11 @@ describe('Callback API', () => {
   });
 
   it('should emit begin and end events', (_t, done) => {
-    var events = [];
-    var handler = (event) => {
+    const events = [];
+    const handler = (event) => {
       events.push(event);
     };
-    p = pipsqueak({ name: 'awesome', task: task, interval: '100ms' })
+    p = pipsqueak({ name: 'awesome', task, interval: '100ms' })
       .on('begin', handler)
       .on('error', handler)
       .on('end', handler)
@@ -125,8 +125,8 @@ describe('Callback API', () => {
   });
 
   it('should emit error events', (_t, done) => {
-    var events = [];
-    var handler = (event) => {
+    const events = [];
+    const handler = (event) => {
       events.push(event);
     };
 
@@ -150,7 +150,7 @@ describe('Callback API', () => {
   });
 
   it('should stop', (_t, done) => {
-    p = pipsqueak({ task: task, interval: '100ms', delay: '50ms' }).start();
+    p = pipsqueak({ task, interval: '100ms', delay: '50ms' }).start();
     setTimeout(() => {
       p.stop((err) => {
         p = null;
@@ -171,15 +171,15 @@ describe('Callback API', () => {
   });
 
   it('should wait for every hamster in a horde to stop', (_t, done) => {
-    var finished = false;
-    var slower = (_ctx, cb) => {
+    let finished = false;
+    const slower = (_ctx, cb) => {
       setTimeout(() => {
         finished = true;
         cb();
       }, 250);
     };
     p = pipsqueak([
-      { name: 'idle', task: task, interval: '1s', delay: '1s' },
+      { name: 'idle', task, interval: '1s', delay: '1s' },
       { name: 'busy', task: slower, interval: '1s' },
     ]).start();
     setTimeout(() => {
@@ -192,7 +192,7 @@ describe('Callback API', () => {
   });
 
   it('should settle stop without anything else keeping the process alive', (_t, done) => {
-    var script = [
+    const script = [
       `var pipsqueak = require(${JSON.stringify(require.resolve('..'))}).callbackApi;`,
       'var slow = (_ctx, cb) => setTimeout(cb, 250);',
       "var p = pipsqueak({ task: slow, interval: '100ms' }).start();",
@@ -206,7 +206,7 @@ describe('Callback API', () => {
   });
 
   it('should emit end before stopped', (_t, done) => {
-    var events = [];
+    const events = [];
     p = pipsqueak({ task: slow, interval: '1s' })
       .on('end', () => events.push('end'))
       .start();
@@ -242,8 +242,8 @@ describe('Callback API', () => {
 
   it('should start a hamster horde', (_t, done) => {
     p = pipsqueak([
-      { task: task, interval: '100ms' },
-      { task: task, interval: '50ms' },
+      { task, interval: '100ms' },
+      { task, interval: '50ms' },
     ]).start();
     setTimeout(() => {
       assert.equal(executions, 8);
@@ -253,8 +253,8 @@ describe('Callback API', () => {
 
   it('should poke a hamster horde', (_t, done) => {
     p = pipsqueak([
-      { task: task, interval: '100ms' },
-      { task: task, interval: '50ms' },
+      { task, interval: '100ms' },
+      { task, interval: '50ms' },
     ]).poke();
     setTimeout(() => {
       assert.equal(executions, 2);
@@ -264,9 +264,9 @@ describe('Callback API', () => {
 
   it('should poke a subset of a hamster horde', (_t, done) => {
     p = pipsqueak([
-      { name: 'rod', task: task, interval: '50ms' },
-      { name: 'jane', task: task, interval: '50ms' },
-      { name: 'freddy', task: task, interval: '50ms' },
+      { name: 'rod', task, interval: '50ms' },
+      { name: 'jane', task, interval: '50ms' },
+      { name: 'freddy', task, interval: '50ms' },
     ]).poke(['rod', 'jane']);
     setTimeout(() => {
       assert.equal(executions, 2);
@@ -276,9 +276,9 @@ describe('Callback API', () => {
 
   it('should poke a single hamster in a hamster horde', (_t, done) => {
     p = pipsqueak([
-      { name: 'rod', task: task, interval: '50ms' },
-      { name: 'jane', task: task, interval: '50ms' },
-      { name: 'freddy', task: task, interval: '50ms' },
+      { name: 'rod', task, interval: '50ms' },
+      { name: 'jane', task, interval: '50ms' },
+      { name: 'freddy', task, interval: '50ms' },
     ]).poke('rod');
     setTimeout(() => {
       assert.equal(executions, 1);
@@ -288,9 +288,9 @@ describe('Callback API', () => {
 
   it('should resume existing schedule after being poked', (_t, done) => {
     p = pipsqueak([
-      { name: 'rod', task: task, interval: '100ms' },
-      { name: 'jane', task: task, interval: '100ms' },
-      { name: 'freddy', task: task, interval: '100ms' },
+      { name: 'rod', task, interval: '100ms' },
+      { name: 'jane', task, interval: '100ms' },
+      { name: 'freddy', task, interval: '100ms' },
     ]).start();
     setTimeout(() => {
       assert.equal(executions, 3);
@@ -306,7 +306,7 @@ describe('Callback API', () => {
   });
 
   it('should not poke disabled tasks', (_t, done) => {
-    p = pipsqueak([{ task: task, interval: '50ms', disabled: true }]).poke();
+    p = pipsqueak([{ task, interval: '50ms', disabled: true }]).poke();
     setTimeout(() => {
       assert.equal(executions, 0);
       done();
@@ -314,9 +314,7 @@ describe('Callback API', () => {
   });
 
   it('should poke disabled tasks with force parameter', (_t, done) => {
-    p = pipsqueak([{ task: task, interval: '50ms', disabled: true }]).poke(
-      true,
-    );
+    p = pipsqueak([{ task, interval: '50ms', disabled: true }]).poke(true);
     setTimeout(() => {
       assert.equal(executions, 1);
       done();
@@ -324,7 +322,7 @@ describe('Callback API', () => {
   });
 
   it('should not poke stopped tasks', (_t, done) => {
-    p = pipsqueak([{ task: task, interval: '50ms' }]);
+    p = pipsqueak([{ task, interval: '50ms' }]);
     p.stop((err) => {
       assert.ifError(err);
       p.poke();

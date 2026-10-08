@@ -1,17 +1,14 @@
-var debug = require('debug')('pipsqueak');
-var randomUUID = require('node:crypto').randomUUID;
-var parse = require('parse-duration').default;
-var EventEmitter = require('node:events').EventEmitter;
-var forward = require('forward-events');
+const debug = require('debug')('pipsqueak');
+const { randomUUID } = require('node:crypto');
+const { default: parse } = require('parse-duration');
+const { EventEmitter } = require('node:events');
+const forward = require('forward-events');
 
 module.exports = function hamsters(run, optionsList) {
-  var api = { start: start, stop: stop, poke: poke };
+  const api = Object.assign(new EventEmitter(), { start, stop, poke });
 
-  EventEmitter.call(api);
-  Object.assign(api, EventEmitter.prototype);
-
-  var horde = []
-    .concat(optionsList)
+  const horde = [optionsList]
+    .flat()
     .map((options) => hamster(api, run, options));
 
   function start() {
@@ -40,20 +37,20 @@ module.exports = function hamsters(run, optionsList) {
   function byNames(names) {
     return (hamster) => {
       if (!names) return true;
-      if ([].concat(names).includes(hamster.name)) return true;
+      if ([names].flat().includes(hamster.name)) return true;
       return false;
     };
   }
 
-  var onStopped = (_event) => {
-    var running = horde.find((hamster) => hamster.status() !== 'stopped');
+  const onStopped = (_event) => {
+    const running = horde.find((hamster) => hamster.status() !== 'stopped');
     if (!running) {
       api.removeListener('_stopped', onStopped);
       api.emit('stopped');
     }
   };
 
-  var onTimeout = (event) => {
+  const onTimeout = (event) => {
     api.removeListener('_stopped', onStopped);
     api.emit('timeout', event);
   };
@@ -62,17 +59,21 @@ module.exports = function hamsters(run, optionsList) {
 };
 
 function hamster(hordeEmitter, run, options) {
-  var name = options.name || randomUUID();
-  var enabled = !options.disabled;
-  var factory = options.factory || ((meta) => options.task.bind(null, meta));
-  var interval = getDuration(options.interval, undefined);
-  var delay = getDuration(options.delay, 0);
-  var timeout = getDuration(options.timeout, undefined);
-  var iteration = 0;
-  var next;
-  var running = false;
-  var stopping = false;
-  var emitter = new EventEmitter();
+  const name = options.name || randomUUID();
+  const enabled = !options.disabled;
+  const factory =
+    options.factory ||
+    ((meta) =>
+      (...args) =>
+        options.task(meta, ...args));
+  const interval = getDuration(options.interval, undefined);
+  const delay = getDuration(options.delay, 0);
+  const timeout = getDuration(options.timeout, undefined);
+  let iteration = 0;
+  let next;
+  let running = false;
+  let stopping = false;
+  const emitter = new EventEmitter();
   forward(emitter, hordeEmitter);
 
   function start() {
@@ -88,36 +89,39 @@ function hamster(hordeEmitter, run, options) {
 
     if (!running) {
       debug('%s has stopped', name);
-      return emitter.emit('_stopped', { name: name, iteration: iteration });
+      return emitter.emit('_stopped', { name, iteration });
     }
 
-    function onEnd() {
+    let timeoutId;
+
+    const onEnd = () => {
       debug('%s has stopped', name);
       clearTimeout(timeoutId);
       process.nextTick(() => {
-        emitter.emit('_stopped', { name: name, iteration: iteration });
+        emitter.emit('_stopped', { name, iteration });
       });
-    }
+    };
 
-    function onTimeout() {
+    const onTimeout = () => {
       debug('%s timedout', name);
       emitter.removeListener('end', onEnd);
-      emitter.emit('_timeout', { name: name, timestamp: Date() });
-    }
+      emitter.emit('_timeout', { name, timestamp: Date() });
+    };
 
     emitter.once('end', onEnd);
 
-    if (timeout === undefined) return;
-    var timeoutId = setTimeout(onTimeout, timeout).unref();
+    if (timeout !== undefined) {
+      timeoutId = setTimeout(onTimeout, timeout).unref();
+    }
   }
 
   function schedule(delay) {
     if (stopping) return;
     debug('%s is scheduled to run in %d milliseconds', name, delay);
-    var ctx = { name: name, run: randomUUID(), iteration: iteration++ };
-    var reschedule = schedule.bind(null, interval);
+    const ctx = { name, run: randomUUID(), iteration: iteration++ };
+    const reschedule = () => schedule(interval);
     next = setTimeout(
-      run.bind(null, ctx, emitter, factory, reschedule),
+      () => run(ctx, emitter, factory, reschedule),
       delay,
     ).unref();
   }
@@ -125,8 +129,8 @@ function hamster(hordeEmitter, run, options) {
   function poke(force) {
     if ((!enabled && !force) || stopping || running) return;
     debug('Poking %s', name);
-    var ctx = { name: name, run: randomUUID(), iteration: iteration++ };
-    var reschedule = next ? schedule.bind(null, interval) : () => {};
+    const ctx = { name, run: randomUUID(), iteration: iteration++ };
+    const reschedule = next ? () => schedule(interval) : () => {};
     clearTimeout(next);
     run(ctx, emitter, factory, reschedule);
   }
@@ -144,10 +148,10 @@ function hamster(hordeEmitter, run, options) {
   });
 
   return {
-    start: start,
-    stop: stop,
-    poke: poke,
-    status: status,
+    start,
+    stop,
+    poke,
+    status,
     get name() {
       return name;
     },

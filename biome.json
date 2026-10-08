@@ -16,7 +16,27 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended"
+      "preset": "recommended",
+      "suspicious": {
+        "noVar": "error"
+      },
+      "style": {
+        "useConst": "error",
+        "useTemplate": "error",
+        "useConsistentObjectDefinitions": {
+          "level": "error",
+          "options": {
+            "syntax": "shorthand"
+          }
+        },
+        "useShorthandAssign": "error",
+        "useSingleVarDeclarator": "error",
+        "noUselessElse": "error",
+        "useNumberNamespace": "error"
+      },
+      "complexity": {
+        "noUselessUndefinedInitialization": "error"
+      }
     }
   },
   "javascript": {

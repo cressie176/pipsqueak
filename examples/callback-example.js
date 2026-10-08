@@ -7,7 +7,7 @@ console.log('----------------');
 
 const p = pipsqueak({
   name: 'example',
-  task: task,
+  task,
   interval: '100ms',
   delay: '1s',
 })
