@@ -1,6 +1,10 @@
 # Change Log
 
 ## Unreleased
+### Fixed
+- The horde no longer reports `stopped` until every hamster has stopped (#27)
+- `stop()` now settles as soon as the running task ends instead of polling, so it can no longer be skipped when nothing else keeps the process alive (#30)
+
 ### Changed
 - **Breaking:** Node 22.12 or later is now required
 - Replaced mocha and nyc with the built-in Node test runner and coverage reporter

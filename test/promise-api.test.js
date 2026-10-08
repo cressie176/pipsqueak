@@ -1,20 +1,9 @@
 var pipsqueak = require('..').promiseApi;
 var assert = require('node:assert');
-var { describe, it, before, after, afterEach } = require('node:test');
+var { describe, it, afterEach } = require('node:test');
+var { execFile } = require('node:child_process');
 
 describe('Promise API', () => {
-  // pipsqueak unrefs all of its timers, so a stop that is waiting for a
-  // running task to finish only completes if something else keeps the event
-  // loop alive. Mocha's per-test timeout timer used to do that implicitly.
-  // See https://github.com/cressie176/pipsqueak/issues/30
-  var keepAlive;
-  before(() => {
-    keepAlive = setInterval(() => {}, 1000);
-  });
-  after(() => {
-    clearInterval(keepAlive);
-  });
-
   var p;
   var executions = 0;
   var factory = () =>
@@ -28,7 +17,7 @@ describe('Promise API', () => {
   var slow = () =>
     new Promise((resolve, _reject) => {
       executions++;
-      setTimeout(resolve, 300);
+      setTimeout(resolve, 250);
     });
 
   afterEach((_t, done) => {
@@ -194,6 +183,61 @@ describe('Promise API', () => {
         })
         .catch(done);
     });
+  });
+
+  it('should wait for every hamster in a horde to stop', (_t, done) => {
+    var finished = false;
+    var slower = () =>
+      new Promise((resolve) => {
+        setTimeout(() => {
+          finished = true;
+          resolve();
+        }, 250);
+      });
+    p = pipsqueak([
+      { name: 'idle', factory: factory, interval: '1s', delay: '1s' },
+      { name: 'busy', factory: slower, interval: '1s' },
+    ]).start();
+    setTimeout(() => {
+      p.stop()
+        .then(() => {
+          assert.ok(finished, 'stopped before the busy hamster finished');
+          p = null;
+          done();
+        })
+        .catch(done);
+    }, 50);
+  });
+
+  it('should settle stop without anything else keeping the process alive', (_t, done) => {
+    var script = [
+      `var pipsqueak = require(${JSON.stringify(require.resolve('..'))}).promiseApi;`,
+      'var slow = () => new Promise((resolve) => setTimeout(resolve, 250));',
+      "var p = pipsqueak({ factory: slow, interval: '100ms' }).start();",
+      "setTimeout(() => p.stop().then(() => console.log('stopped')));",
+    ].join('\n');
+    execFile(process.execPath, ['-e', script], (err, stdout) => {
+      if (err) return done(err);
+      assert.equal(stdout.trim(), 'stopped');
+      done();
+    });
+  });
+
+  it('should emit end before stopped', (_t, done) => {
+    var events = [];
+    p = pipsqueak({ factory: slow, interval: '1s' })
+      .on('end', () => events.push('end'))
+      .start();
+    setTimeout(() => {
+      p.stop()
+        .then(() => {
+          events.push('stopped');
+          assert.deepEqual(events, ['end', 'stopped']);
+          p = null;
+          done();
+        })
+        .catch(done);
+    }, 50);
   });
 
   it('should timeout waiting for tasks to stop', (_t, done) => {
