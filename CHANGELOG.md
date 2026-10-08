@@ -1,5 +1,19 @@
 # Change Log
 
+## Unreleased
+### Changed
+- **Breaking:** Node 22 or later is now required
+- Replaced mocha and nyc with the built-in Node test runner and coverage reporter
+- Replaced eslint with Biome
+- Replaced husky with lefthook
+- Migrated CI from Travis to GitHub Actions, with coverage reported to Codecov
+- Publish to npm via GitHub Actions using trusted (staged) publishing
+- Replaced uuid with `crypto.randomUUID`
+- Updated dependencies
+
+### Removed
+- Code Climate, Greenkeeper and Travis configuration and badges
+
 ## 2.7.0
 ### Added
 - Force poke will cause the job to run even when it is disabled
